@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trash2, Edit2, Plus, LogOut } from "lucide-react";
+import { Trash2, Edit2, Plus, LogOut, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -13,6 +13,11 @@ interface UploadedImage {
   id: string;
 }
 
+interface ExistingImage {
+  id: number;
+  imageUrl: string;
+}
+
 interface Property {
   id: number;
   title: string;
@@ -22,7 +27,8 @@ interface Property {
   baths: number;
   area: number;
   featured: number;
-  images?: Array<{ id: number; imageUrl: string }>;
+  description?: string | null;
+  images?: ExistingImage[];
 }
 
 export default function AdminDashboard() {
@@ -31,6 +37,7 @@ export default function AdminDashboard() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [selectedImages, setSelectedImages] = useState<UploadedImage[]>([]);
+  const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -44,16 +51,26 @@ export default function AdminDashboard() {
   });
 
   const propertiesQuery = trpc.properties.list.useQuery();
+  
   const createPropertyMutation = trpc.properties.create.useMutation({
     onSuccess: async () => {
-      // Refetch to get the new property
       await propertiesQuery.refetch();
       toast.success("Imóvel criado com sucesso!");
       resetForm();
     },
-    onError: (error) => {
+    onError: () => {
       toast.error("Erro ao criar imóvel");
-      console.error(error);
+    },
+  });
+
+  const updatePropertyMutation = trpc.properties.update.useMutation({
+    onSuccess: async () => {
+      await propertiesQuery.refetch();
+      toast.success("Imóvel atualizado com sucesso!");
+      resetForm();
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar imóvel");
     },
   });
 
@@ -64,6 +81,16 @@ export default function AdminDashboard() {
     },
     onError: () => {
       toast.error("Erro ao deletar imóvel");
+    },
+  });
+
+  const deleteImageMutation = trpc.properties.deleteImage.useMutation({
+    onSuccess: () => {
+      toast.success("Imagem removida com sucesso!");
+      propertiesQuery.refetch();
+    },
+    onError: () => {
+      toast.error("Erro ao remover imagem");
     },
   });
 
@@ -91,54 +118,26 @@ export default function AdminDashboard() {
       featured: false,
     });
     setSelectedImages([]);
+    setExistingImages([]);
     setEditingId(null);
     setShowForm(false);
   };
 
-  const uploadImages = async (propertyId: number) => {
-    setIsUploading(true);
-    try {
-      for (let i = 0; i < selectedImages.length; i++) {
-        const image = selectedImages[i];
-        
-        // Convert file to base64
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          const base64 = e.target?.result as string;
-          
-          try {
-            // Upload to storage
-            const response = await fetch("/api/upload", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                file: base64,
-                filename: `property-${propertyId}-${i}.jpg`,
-              }),
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              // Add image to property
-              await addImageMutation.mutateAsync({
-                propertyId,
-                imageUrl: data.url,
-                imageKey: data.key,
-                order: i,
-              });
-            }
-          } catch (error) {
-            console.error("Erro ao fazer upload:", error);
-            toast.error("Erro ao fazer upload de imagem");
-          }
-        };
-        reader.readAsDataURL(image.file);
-      }
-    } finally {
-      setIsUploading(false);
-    }
+  const handleEditClick = (property: Property) => {
+    setEditingId(property.id);
+    setFormData({
+      title: property.title,
+      location: property.location,
+      price: property.price,
+      description: property.description || "",
+      beds: property.beds,
+      baths: property.baths,
+      area: property.area,
+      featured: property.featured === 1,
+    });
+    setExistingImages(property.images || []);
+    setSelectedImages([]);
+    setShowForm(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -148,17 +147,35 @@ export default function AdminDashboard() {
       return;
     }
 
-    await createPropertyMutation.mutateAsync({
-      ...formData,
-      beds: Number(formData.beds),
-      baths: Number(formData.baths),
-      area: Number(formData.area),
-    });
+    if (editingId) {
+      // Editar propriedade existente
+      await updatePropertyMutation.mutateAsync({
+        id: editingId,
+        ...formData,
+        beds: Number(formData.beds),
+        baths: Number(formData.baths),
+        area: Number(formData.area),
+      });
+    } else {
+      // Criar nova propriedade
+      await createPropertyMutation.mutateAsync({
+        ...formData,
+        beds: Number(formData.beds),
+        baths: Number(formData.baths),
+        area: Number(formData.area),
+      });
+    }
   };
 
   const handleDelete = (id: number) => {
     if (confirm("Tem certeza que deseja deletar este imóvel?")) {
       deletePropertyMutation.mutate({ id });
+    }
+  };
+
+  const handleDeleteImage = (imageId: number) => {
+    if (confirm("Tem certeza que deseja remover esta imagem?")) {
+      deleteImageMutation.mutate({ id: imageId });
     }
   };
 
@@ -202,7 +219,10 @@ export default function AdminDashboard() {
             <p className="text-muted-foreground">Total: {properties.length} propriedades</p>
           </div>
           <Button
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => {
+              resetForm();
+              setShowForm(!showForm);
+            }}
             className="bg-accent hover:bg-accent/90 text-accent-foreground flex items-center gap-2"
           >
             <Plus size={20} />
@@ -213,7 +233,18 @@ export default function AdminDashboard() {
         {/* Form */}
         {showForm && (
           <Card className="p-8 mb-8">
-            <h3 className="font-display text-2xl font-bold text-foreground mb-6">Adicionar Novo Imóvel</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-display text-2xl font-bold text-foreground">
+                {editingId ? "Editar Imóvel" : "Adicionar Novo Imóvel"}
+              </h3>
+              <button
+                onClick={resetForm}
+                className="p-1 hover:bg-secondary rounded transition-colors"
+              >
+                <X size={24} className="text-foreground" />
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Informações Básicas */}
               <div className="space-y-4">
@@ -325,9 +356,45 @@ export default function AdminDashboard() {
                 </label>
               </div>
 
-              {/* Upload de Imagens */}
+              {/* Imagens Existentes */}
+              {editingId && existingImages.length > 0 && (
+                <div className="space-y-4 pt-6 border-t border-border">
+                  <h4 className="font-semibold text-foreground">Fotos Atuais</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {existingImages.map((image, index) => (
+                      <div
+                        key={image.id}
+                        className="relative group rounded-lg overflow-hidden bg-secondary/30"
+                      >
+                        <img
+                          src={image.imageUrl}
+                          alt={`Imagem ${index + 1}`}
+                          className="w-full h-32 object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteImage(image.id)}
+                            className="p-2 bg-red-600 hover:bg-red-700 rounded-lg text-white transition-colors"
+                            title="Remover"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+                        <div className="absolute top-2 left-2 bg-accent text-accent-foreground px-2 py-1 rounded text-xs font-semibold">
+                          {index + 1}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Upload de Novas Imagens */}
               <div className="space-y-4 pt-6 border-t border-border">
-                <h4 className="font-semibold text-foreground">Fotos do Imóvel</h4>
+                <h4 className="font-semibold text-foreground">
+                  {editingId ? "Adicionar Novas Fotos" : "Fotos do Imóvel"}
+                </h4>
                 <ImageUpload
                   onImagesSelected={setSelectedImages}
                   maxImages={10}
@@ -339,10 +406,10 @@ export default function AdminDashboard() {
               <div className="flex gap-4 pt-4">
                 <Button
                   type="submit"
-                  disabled={createPropertyMutation.isPending || isUploading}
+                  disabled={createPropertyMutation.isPending || updatePropertyMutation.isPending || isUploading}
                   className="bg-accent hover:bg-accent/90 text-accent-foreground"
                 >
-                  {createPropertyMutation.isPending || isUploading ? "Processando..." : "Criar Imóvel"}
+                  {isUploading ? "Processando..." : editingId ? "Atualizar Imóvel" : "Criar Imóvel"}
                 </Button>
                 <Button
                   type="button"
@@ -365,7 +432,10 @@ export default function AdminDashboard() {
           <Card className="p-12 text-center">
             <p className="text-muted-foreground mb-4">Nenhum imóvel cadastrado ainda.</p>
             <Button
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
               className="bg-accent hover:bg-accent/90 text-accent-foreground"
             >
               Adicionar Primeiro Imóvel
@@ -412,10 +482,7 @@ export default function AdminDashboard() {
                       variant="outline"
                       size="sm"
                       className="flex-1 flex items-center justify-center gap-2"
-                      onClick={() => {
-                        setEditingId(property.id);
-                        setShowForm(true);
-                      }}
+                      onClick={() => handleEditClick(property)}
                     >
                       <Edit2 size={16} />
                       Editar
