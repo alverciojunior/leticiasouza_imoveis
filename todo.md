@@ -26,3 +26,4 @@
 - [x] Erro de coordenadas inválidas no mapa
 - [x] Mapeamento de imagens do banco de dados
 - [x] Upload de imagens para S3
+- [x] Alterar título da guia do navegador para "Leticia Souza - Imóveis"
