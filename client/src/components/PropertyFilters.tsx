@@ -11,6 +11,7 @@ export interface FilterOptions {
   minArea: string;
   location: string;
   type: string;
+  sortBy: string;
 }
 
 interface PropertyFiltersProps {
@@ -20,6 +21,7 @@ interface PropertyFiltersProps {
   types: string[];
   minBeds: number[];
   minBaths: number[];
+  currentFilters: FilterOptions;
 }
 
 export default function PropertyFilters({
@@ -29,39 +31,20 @@ export default function PropertyFilters({
   types,
   minBeds,
   minBaths,
+  currentFilters,
 }: PropertyFiltersProps) {
-  const [filters, setFilters] = useState<FilterOptions>({
-    minPrice: "",
-    maxPrice: "",
-    minBeds: "",
-    minBaths: "",
-    minArea: "",
-    location: "",
-    type: "",
-  });
-
   const [isOpen, setIsOpen] = useState(false);
 
   const handleFilterChange = (key: keyof FilterOptions, value: string) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
+    const newFilters = { ...currentFilters, [key]: value };
     onFilterChange(newFilters);
   };
 
   const handleReset = () => {
-    setFilters({
-      minPrice: "",
-      maxPrice: "",
-      minBeds: "",
-      minBaths: "",
-      minArea: "",
-      location: "",
-      type: "",
-    });
     onReset();
   };
 
-  const hasActiveFilters = Object.values(filters).some((v) => v !== "");
+  const hasActiveFilters = Object.values(currentFilters).some((v) => v !== "");
 
   return (
     <div className="w-full">
@@ -102,7 +85,7 @@ export default function PropertyFilters({
               Tipo
             </label>
             <select
-              value={filters.type}
+              value={currentFilters.type}
               onChange={(e) => handleFilterChange("type", e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             >
@@ -121,7 +104,7 @@ export default function PropertyFilters({
               Localização
             </label>
             <select
-              value={filters.location}
+              value={currentFilters.location}
               onChange={(e) => handleFilterChange("location", e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             >
@@ -142,7 +125,7 @@ export default function PropertyFilters({
             <input
               type="number"
               placeholder="Ex: 500000"
-              value={filters.minPrice}
+              value={currentFilters.minPrice}
               onChange={(e) => handleFilterChange("minPrice", e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             />
@@ -156,7 +139,7 @@ export default function PropertyFilters({
             <input
               type="number"
               placeholder="Ex: 3000000"
-              value={filters.maxPrice}
+              value={currentFilters.maxPrice}
               onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             />
@@ -168,7 +151,7 @@ export default function PropertyFilters({
               Quartos Mínimos
             </label>
             <select
-              value={filters.minBeds}
+              value={currentFilters.minBeds}
               onChange={(e) => handleFilterChange("minBeds", e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             >
@@ -187,7 +170,7 @@ export default function PropertyFilters({
               Banheiros Mínimos
             </label>
             <select
-              value={filters.minBaths}
+              value={currentFilters.minBaths}
               onChange={(e) => handleFilterChange("minBaths", e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             >
@@ -208,10 +191,26 @@ export default function PropertyFilters({
             <input
               type="number"
               placeholder="Ex: 150"
-              value={filters.minArea}
+              value={currentFilters.minArea}
               onChange={(e) => handleFilterChange("minArea", e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             />
+          </div>
+
+          {/* Sort By Filter */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Ordenar Por
+            </label>
+            <select
+              value={currentFilters.sortBy}
+              onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+              <option value="recente">Mais Recentes</option>
+              <option value="preco-asc">Menor Preço</option>
+              <option value="preco-desc">Maior Preço</option>
+            </select>
           </div>
         </div>
 

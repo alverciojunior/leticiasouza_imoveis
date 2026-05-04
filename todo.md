@@ -53,3 +53,9 @@
 - [x] Melhorar filtros de quartos e banheiros para só mostrar opções disponíveis
 - [x] Atualizar banco de dados com coluna "type"
 - [x] Criar testes para validação de tipo de imóvel
+
+## Ordenação de Resultados
+- [x] Adicionar campo de ordenação no componente PropertyFilters
+- [x] Implementar lógica de ordenação por preço (menor/maior) e data
+- [x] Persistir ordenação na URL
+- [x] Criar testes para validação de ordenação

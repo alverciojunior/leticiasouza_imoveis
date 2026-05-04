@@ -128,6 +128,7 @@ export default function Home() {
     minArea: "",
     location: "",
     type: "",
+    sortBy: "recente",
   });
   const [formData, setFormData] = useState({
     name: "",
@@ -146,6 +147,7 @@ export default function Home() {
       minArea: params.get("minArea") || "",
       location: params.get("location") || "",
       type: params.get("type") || "",
+      sortBy: params.get("sortBy") || "recente",
     });
   }, []);
 
@@ -158,6 +160,7 @@ export default function Home() {
     if (filters.minArea) params.set("minArea", filters.minArea);
     if (filters.location) params.set("location", filters.location);
     if (filters.type) params.set("type", filters.type);
+    if (filters.sortBy && filters.sortBy !== "recente") params.set("sortBy", filters.sortBy);
 
     const queryString = params.toString();
     const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
@@ -318,11 +321,12 @@ export default function Home() {
               return (
                 <PropertyFilters
                   onFilterChange={setFilters}
-                  onReset={() => setFilters({ minPrice: "", maxPrice: "", minBeds: "", minBaths: "", minArea: "", location: "", type: "" })}
+                  onReset={() => setFilters({ minPrice: "", maxPrice: "", minBeds: "", minBaths: "", minArea: "", location: "", type: "", sortBy: "recente" })}
                   locations={Array.from(new Set(properties.map(p => p.location)))}
                   types={types}
                   minBeds={minBedsOptions}
                   minBaths={minBathsOptions}
+                  currentFilters={filters}
                 />
               );
             }, [properties])}
@@ -348,6 +352,17 @@ export default function Home() {
                   (filters.location === "" || property.location.includes(filters.location)) &&
                   (filters.type === "" || (property as any).type === filters.type)
                 );
+              })
+              .sort((a, b) => {
+                const priceA = parseInt(a.price.replace(/[^0-9]/g, ""));
+                const priceB = parseInt(b.price.replace(/[^0-9]/g, ""));
+
+                if (filters.sortBy === "preco-asc") {
+                  return priceA - priceB;
+                } else if (filters.sortBy === "preco-desc") {
+                  return priceB - priceA;
+                }
+                return b.id - a.id;
               })
               .map((property) => (
               <a
