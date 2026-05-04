@@ -186,9 +186,6 @@ export default function Home() {
             <a href="#contact" className="text-foreground hover:text-accent transition-colors text-sm font-medium">
               Contato
             </a>
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-              Consultar
-            </Button>
           </div>
         </div>
       </nav>
@@ -209,9 +206,6 @@ export default function Home() {
               <p className="text-white/90 text-lg mb-8 max-w-xl">
                 Explore uma seleção curada de propriedades premium em Bady Bassitt e região. Qualidade, sofisticação e localização privilegiada.
               </p>
-              <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
-                Explorar Imóveis
-              </Button>
             </div>
           </div>
         </div>
