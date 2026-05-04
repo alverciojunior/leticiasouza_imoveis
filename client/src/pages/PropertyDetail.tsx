@@ -6,6 +6,7 @@ import { useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import ImageCarousel from "@/components/ImageCarousel";
+import PropertyMap from "@/components/PropertyMap";
 
 interface Property {
   id: number;
@@ -18,6 +19,8 @@ interface Property {
   baths: number;
   area: number;
   description?: string;
+  latitude: number;
+  longitude: number;
 }
 
 const baseImage1 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/hero-luxury-home-fCQMtSy6nEmPgJoZQTvaNq.webp";
@@ -38,6 +41,8 @@ const properties: Property[] = [
     baths: 3,
     area: 350,
     description: "Residência moderna de luxo com acabamentos premium, localizada em área privilegiada de Bady Bassitt. Possui amplos espaços, piscina e jardim paisagístico.",
+    latitude: -20.5105,
+    longitude: -48.7789,
   },
   {
     id: 2,
@@ -50,6 +55,8 @@ const properties: Property[] = [
     baths: 2,
     area: 280,
     description: "Apartamento contemporâneo no coração do centro, com acabamentos sofisticados e localização estratégica próximo a comércios e serviços.",
+    latitude: -20.5120,
+    longitude: -48.7805,
   },
   {
     id: 3,
@@ -62,6 +69,8 @@ const properties: Property[] = [
     baths: 2,
     area: 250,
     description: "Casa aconchegante com jardim privativo, ideal para famílias que buscam conforto e tranquilidade em zona residencial consolidada.",
+    latitude: -20.5090,
+    longitude: -48.7750,
   },
   {
     id: 4,
@@ -74,6 +83,8 @@ const properties: Property[] = [
     baths: 4,
     area: 420,
     description: "Penthouse exclusivo com vista panorâmica da cidade, acabamentos de luxo e todas as comodidades para um estilo de vida sofisticado.",
+    latitude: -20.5135,
+    longitude: -48.7820,
   },
   {
     id: 5,
@@ -86,6 +97,8 @@ const properties: Property[] = [
     baths: 2,
     area: 220,
     description: "Residência com cozinha gourmet equipada, perfeita para quem aprecia culinária e deseja espaço amplo para refeições e convivência.",
+    latitude: -20.5070,
+    longitude: -48.7770,
   },
   {
     id: 6,
@@ -95,6 +108,8 @@ const properties: Property[] = [
     image: baseImage1,
     images: [baseImage1, baseImage3, baseImage2, baseImage5, baseImage4],
     beds: 2,
+    latitude: -20.5110,
+    longitude: -48.7700,
     baths: 1,
     area: 150,
     description: "Apartamento aconchegante e bem localizado, ideal para casais ou pequenas famílias que buscam imóvel com bom custo-benefício.",
@@ -248,6 +263,16 @@ export default function PropertyDetail() {
                 <p className="text-muted-foreground text-lg leading-relaxed">
                   {property.description || "Imóvel com excelente localização e acabamento de qualidade."}
                 </p>
+              </div>
+
+              {/* Map */}
+              <div className="mb-12">
+                <h2 className="font-display text-2xl font-bold text-foreground mb-4">Localização da Região</h2>
+                <PropertyMap
+                  latitude={property.latitude}
+                  longitude={property.longitude}
+                  title={property.title}
+                />
               </div>
 
               {/* Contact Info */}
