@@ -5,6 +5,7 @@ import { useState } from "react";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import ImageCarousel from "@/components/ImageCarousel";
 
 /**
  * Design Philosophy: Minimalismo Contemporâneo Premium
@@ -20,6 +21,7 @@ interface Property {
   location: string;
   price: string;
   image: string;
+  images?: string[];
   beds: number;
   baths: number;
   area: number;
@@ -195,13 +197,24 @@ export default function Home() {
                 href={`/property/${property.id}`}
                 className="group cursor-pointer block"
               >
-                <div className="relative overflow-hidden rounded-lg mb-4 h-80">
-                  <img
-                    src={property.image}
-                    alt={property.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-4 py-2 rounded-lg font-semibold">
+                <div className="relative mb-4">
+                  {property.images && property.images.length > 0 ? (
+                    <ImageCarousel
+                      images={property.images}
+                      title={property.title}
+                      autoPlay={true}
+                      autoPlayInterval={6000}
+                    />
+                  ) : (
+                    <div className="relative overflow-hidden rounded-lg h-80">
+                      <img
+                        src={property.image}
+                        alt={property.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+                  <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-4 py-2 rounded-lg font-semibold z-20">
                     {property.price}
                   </div>
                 </div>

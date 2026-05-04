@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import ImageCarousel from "@/components/ImageCarousel";
 
 interface Property {
   id: number;
@@ -12,11 +13,18 @@ interface Property {
   location: string;
   price: string;
   image: string;
+  images: string[];
   beds: number;
   baths: number;
   area: number;
   description?: string;
 }
+
+const baseImage1 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/hero-luxury-home-fCQMtSy6nEmPgJoZQTvaNq.webp";
+const baseImage2 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/modern-living-room-LCRe2bXCNVTkR3pvAAFa8x.webp";
+const baseImage3 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/garden-outdoor-PHWzXXrx5AK337GyABMVrx.webp";
+const baseImage4 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/bedroom-luxury-DPY6MkRa9mSzwjt3QfkBsk.webp";
+const baseImage5 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/kitchen-modern-LciaA5zEGHuDM3eBctWe49.webp";
 
 const properties: Property[] = [
   {
@@ -24,7 +32,8 @@ const properties: Property[] = [
     title: "Residência Moderna Luxuosa",
     location: "Bady Bassitt - SP",
     price: "R$ 2.500.000",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/hero-luxury-home-fCQMtSy6nEmPgJoZQTvaNq.webp",
+    image: baseImage1,
+    images: [baseImage1, baseImage2, baseImage4, baseImage5, baseImage3],
     beds: 4,
     baths: 3,
     area: 350,
@@ -35,7 +44,8 @@ const properties: Property[] = [
     title: "Apartamento Contemporâneo",
     location: "Centro - Bady Bassitt, SP",
     price: "R$ 1.800.000",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/modern-living-room-LCRe2bXCNVTkR3pvAAFa8x.webp",
+    image: baseImage2,
+    images: [baseImage2, baseImage4, baseImage1, baseImage5, baseImage3],
     beds: 3,
     baths: 2,
     area: 280,
@@ -46,7 +56,8 @@ const properties: Property[] = [
     title: "Casa com Jardim Privativo",
     location: "Zona Residencial - Bady Bassitt, SP",
     price: "R$ 1.200.000",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/garden-outdoor-PHWzXXrx5AK337GyABMVrx.webp",
+    image: baseImage3,
+    images: [baseImage3, baseImage1, baseImage2, baseImage4, baseImage5],
     beds: 3,
     baths: 2,
     area: 250,
@@ -57,7 +68,8 @@ const properties: Property[] = [
     title: "Penthouse com Vista Panorâmica",
     location: "Bady Bassitt - SP",
     price: "R$ 3.200.000",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/bedroom-luxury-DPY6MkRa9mSzwjt3QfkBsk.webp",
+    image: baseImage4,
+    images: [baseImage4, baseImage5, baseImage1, baseImage2, baseImage3],
     beds: 4,
     baths: 4,
     area: 420,
@@ -68,7 +80,8 @@ const properties: Property[] = [
     title: "Residência com Cozinha Gourmet",
     location: "Zona Norte - Bady Bassitt, SP",
     price: "R$ 950.000",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/kitchen-modern-LciaA5zEGHuDM3eBctWe49.webp",
+    image: baseImage5,
+    images: [baseImage5, baseImage2, baseImage3, baseImage1, baseImage4],
     beds: 3,
     baths: 2,
     area: 220,
@@ -79,7 +92,8 @@ const properties: Property[] = [
     title: "Apartamento Aconchegante",
     location: "Zona Leste - Bady Bassitt, SP",
     price: "R$ 680.000",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/hero-luxury-home-fCQMtSy6nEmPgJoZQTvaNq.webp",
+    image: baseImage1,
+    images: [baseImage1, baseImage3, baseImage2, baseImage5, baseImage4],
     beds: 2,
     baths: 1,
     area: 150,
@@ -180,13 +194,16 @@ export default function PropertyDetail() {
         </div>
       </nav>
 
-      {/* Hero Image */}
-      <section className="relative h-96 overflow-hidden">
-        <img
-          src={property.image}
-          alt={property.title}
-          className="w-full h-full object-cover"
-        />
+      {/* Image Carousel */}
+      <section className="py-6 bg-background">
+        <div className="container">
+          <ImageCarousel
+            images={property.images}
+            title={property.title}
+            autoPlay={true}
+            autoPlayInterval={5000}
+          />
+        </div>
       </section>
 
       {/* Property Details */}
