@@ -59,3 +59,7 @@
 - [x] Implementar lógica de ordenação por preço (menor/maior) e data
 - [x] Persistir ordenação na URL
 - [x] Criar testes para validação de ordenação
+
+
+## Bugs em Correção
+- [x] Upload de imagem real causa crash (imagem fictícia funciona) - Sanitizado nomes de arquivo removendo espaços

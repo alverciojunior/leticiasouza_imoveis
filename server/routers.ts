@@ -199,14 +199,34 @@ export const appRouter = router({
       )
       .mutation(async ({ input }) => {
         try {
-          const base64Data = input.imageData.split(',')[1];
+          console.log('[uploadImage] Iniciando upload:', { propertyId: input.propertyId, fileName: input.fileName, dataLength: input.imageData.length });
+          
+          let base64Data = input.imageData;
+          if (input.imageData.includes(',')) {
+            base64Data = input.imageData.split(',')[1];
+          }
+          
+          if (!base64Data) {
+            throw new Error('Base64 data invalido ou vazio');
+          }
+          
+          console.log('[uploadImage] Base64 extraido:', { length: base64Data.length });
           const buffer = Buffer.from(base64Data, 'base64');
+          console.log('[uploadImage] Buffer criado:', { size: buffer.length });
+          
+          // Sanitizar nome do arquivo removendo espaços e caracteres especiais
+          const sanitizedFileName = input.fileName
+            .replace(/\s+/g, '-') // Substituir espaços por hífens
+            .replace(/[^a-zA-Z0-9._-]/g, '') // Remover caracteres especiais
+            .toLowerCase();
           
           const { url, key } = await storagePut(
-            `properties/${input.propertyId}/${Date.now()}-${input.fileName}`,
+            `properties/${input.propertyId}/${Date.now()}-${sanitizedFileName}`,
             buffer,
             'image/jpeg'
           );
+          
+          console.log('[uploadImage] Upload para storage concluido:', { url, key });
           
           await addPropertyImage({
             propertyId: input.propertyId,
@@ -215,10 +235,11 @@ export const appRouter = router({
             order: input.order,
           });
           
+          console.log('[uploadImage] Imagem adicionada ao banco de dados com sucesso');
           return { success: true, url, key };
         } catch (error) {
-          console.error("Erro ao fazer upload de imagem:", error);
-          throw new Error("Erro ao fazer upload de imagem");
+          console.error('[uploadImage] Erro ao fazer upload de imagem:', error);
+          throw new Error(`Erro ao fazer upload de imagem: ${error instanceof Error ? error.message : String(error)}`);
         }
       }),
 
