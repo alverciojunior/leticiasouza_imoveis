@@ -165,6 +165,40 @@ export const appRouter = router({
         }
       }),
 
+    uploadImage: publicProcedure
+      .input(
+        z.object({
+          propertyId: z.number(),
+          imageData: z.string(),
+          fileName: z.string(),
+          order: z.number().default(0),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const base64Data = input.imageData.split(',')[1];
+          const buffer = Buffer.from(base64Data, 'base64');
+          
+          const { url, key } = await storagePut(
+            `properties/${input.propertyId}/${Date.now()}-${input.fileName}`,
+            buffer,
+            'image/jpeg'
+          );
+          
+          await addPropertyImage({
+            propertyId: input.propertyId,
+            imageUrl: url,
+            imageKey: key,
+            order: input.order,
+          });
+          
+          return { success: true, url, key };
+        } catch (error) {
+          console.error("Erro ao fazer upload de imagem:", error);
+          throw new Error("Erro ao fazer upload de imagem");
+        }
+      }),
+
     addImage: publicProcedure
       .input(
         z.object({

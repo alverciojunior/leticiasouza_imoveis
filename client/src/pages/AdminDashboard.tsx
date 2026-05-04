@@ -120,7 +120,16 @@ export default function AdminDashboard() {
     },
   });
 
-  const addImageMutation = trpc.properties.addImage.useMutation({
+  const addImageMutation = trpc.properties.uploadImage.useMutation({
+    onError: (error) => {
+      toast.error("Erro ao adicionar imagem", {
+        description: error.message || "Verifique o arquivo e tente novamente.",
+        duration: 5000,
+      });
+    },
+  });
+
+  const addImageDirectMutation = trpc.properties.addImage.useMutation({
     onError: (error) => {
       toast.error("Erro ao adicionar imagem", {
         description: error.message || "Verifique o arquivo e tente novamente.",
@@ -185,23 +194,76 @@ export default function AdminDashboard() {
       return;
     }
 
-    if (editingId) {
-      // Editar propriedade existente
-      await updatePropertyMutation.mutateAsync({
-        id: editingId,
-        ...formData,
-        beds: Number(formData.beds),
-        baths: Number(formData.baths),
-        area: Number(formData.area),
-      });
-    } else {
-      // Criar nova propriedade
-      await createPropertyMutation.mutateAsync({
-        ...formData,
-        beds: Number(formData.beds),
-        baths: Number(formData.baths),
-        area: Number(formData.area),
-      });
+    try {
+      setIsUploading(true);
+      let propertyId = editingId;
+
+      if (editingId) {
+        // Editar propriedade existente
+        await updatePropertyMutation.mutateAsync({
+          id: editingId,
+          ...formData,
+          beds: Number(formData.beds),
+          baths: Number(formData.baths),
+          area: Number(formData.area),
+        });
+      } else {
+        // Criar nova propriedade
+        await createPropertyMutation.mutateAsync({
+          ...formData,
+          beds: Number(formData.beds),
+          baths: Number(formData.baths),
+          area: Number(formData.area),
+        });
+        // Pegar o ID da propriedade criada
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (propertiesQuery.data && propertiesQuery.data.length > 0) {
+          propertyId = propertiesQuery.data[0].id;
+        }
+      }
+
+      // Upload de imagens selecionadas
+      if (selectedImages.length > 0 && propertyId) {
+        for (let i = 0; i < selectedImages.length; i++) {
+          const image = selectedImages[i];
+          try {
+            const reader = new FileReader();
+            await new Promise((resolve, reject) => {
+              reader.onload = async (e) => {
+                try {
+                  const base64 = e.target?.result as string;
+                  await addImageMutation.mutateAsync({
+                    propertyId,
+                    imageData: base64,
+                    fileName: image.file.name,
+                    order: i,
+                  } as any);
+                  resolve(null);
+                } catch (err) {
+                  reject(err);
+                }
+              };
+              reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
+              reader.readAsDataURL(image.file);
+            });
+          } catch (error) {
+            console.error('Erro ao fazer upload:', error);
+          }
+        }
+        
+        // Recarregar propriedades após upload
+        await propertiesQuery.refetch();
+        toast.success("Imagens enviadas com sucesso!", {
+          description: `${selectedImages.length} foto(s) adicionada(s) ao imóvel.`,
+          duration: 3000,
+        });
+      }
+
+      resetForm();
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
