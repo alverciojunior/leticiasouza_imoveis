@@ -5,6 +5,13 @@ import { Trash2, Edit2, Plus, LogOut } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
+import ImageUpload from "@/components/ImageUpload";
+
+interface UploadedImage {
+  file: File;
+  preview: string;
+  id: string;
+}
 
 interface Property {
   id: number;
@@ -23,6 +30,8 @@ export default function AdminDashboard() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [selectedImages, setSelectedImages] = useState<UploadedImage[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     location: "",
@@ -36,20 +45,11 @@ export default function AdminDashboard() {
 
   const propertiesQuery = trpc.properties.list.useQuery();
   const createPropertyMutation = trpc.properties.create.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Refetch to get the new property
+      await propertiesQuery.refetch();
       toast.success("Imóvel criado com sucesso!");
-      propertiesQuery.refetch();
-      setFormData({
-        title: "",
-        location: "",
-        price: "",
-        description: "",
-        beds: 1,
-        baths: 1,
-        area: 100,
-        featured: false,
-      });
-      setShowForm(false);
+      resetForm();
     },
     onError: (error) => {
       toast.error("Erro ao criar imóvel");
@@ -67,11 +67,79 @@ export default function AdminDashboard() {
     },
   });
 
+  const addImageMutation = trpc.properties.addImage.useMutation({
+    onError: () => {
+      toast.error("Erro ao adicionar imagem");
+    },
+  });
+
   useEffect(() => {
     if (propertiesQuery.data) {
       setProperties(propertiesQuery.data);
     }
   }, [propertiesQuery.data]);
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      location: "",
+      price: "",
+      description: "",
+      beds: 1,
+      baths: 1,
+      area: 100,
+      featured: false,
+    });
+    setSelectedImages([]);
+    setEditingId(null);
+    setShowForm(false);
+  };
+
+  const uploadImages = async (propertyId: number) => {
+    setIsUploading(true);
+    try {
+      for (let i = 0; i < selectedImages.length; i++) {
+        const image = selectedImages[i];
+        
+        // Convert file to base64
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const base64 = e.target?.result as string;
+          
+          try {
+            // Upload to storage
+            const response = await fetch("/api/upload", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                file: base64,
+                filename: `property-${propertyId}-${i}.jpg`,
+              }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              // Add image to property
+              await addImageMutation.mutateAsync({
+                propertyId,
+                imageUrl: data.url,
+                imageKey: data.key,
+                order: i,
+              });
+            }
+          } catch (error) {
+            console.error("Erro ao fazer upload:", error);
+            toast.error("Erro ao fazer upload de imagem");
+          }
+        };
+        reader.readAsDataURL(image.file);
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,104 +214,106 @@ export default function AdminDashboard() {
         {showForm && (
           <Card className="p-8 mb-8">
             <h3 className="font-display text-2xl font-bold text-foreground mb-6">Adicionar Novo Imóvel</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Título *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                    placeholder="Ex: Residência Moderna Luxuosa"
-                    required
-                  />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Informações Básicas */}
+              <div className="space-y-4">
+                <h4 className="font-semibold text-foreground">Informações Básicas</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Título *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                      placeholder="Ex: Residência Moderna Luxuosa"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Localização *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                      placeholder="Ex: Bady Bassitt - SP"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Preço *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                      placeholder="Ex: R$ 2.500.000"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Quartos
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.beds}
+                      onChange={(e) => setFormData({ ...formData, beds: Number(e.target.value) })}
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                      min="1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Banheiros
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.baths}
+                      onChange={(e) => setFormData({ ...formData, baths: Number(e.target.value) })}
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                      min="1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Área (m²)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.area}
+                      onChange={(e) => setFormData({ ...formData, area: Number(e.target.value) })}
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                      min="1"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
-                    Localização *
+                    Descrição
                   </label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  <textarea
+                    rows={4}
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                    placeholder="Ex: Bady Bassitt - SP"
-                    required
-                  />
+                    placeholder="Descrição do imóvel..."
+                  ></textarea>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Preço *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                    placeholder="Ex: R$ 2.500.000"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Quartos
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.beds}
-                    onChange={(e) => setFormData({ ...formData, beds: Number(e.target.value) })}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                    min="1"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Banheiros
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.baths}
-                    onChange={(e) => setFormData({ ...formData, baths: Number(e.target.value) })}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                    min="1"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Área (m²)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.area}
-                    onChange={(e) => setFormData({ ...formData, area: Number(e.target.value) })}
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                    min="1"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">
-                  Descrição
-                </label>
-                <textarea
-                  rows={4}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                  placeholder="Descrição do imóvel..."
-                ></textarea>
-              </div>
-
-              <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
@@ -251,22 +321,33 @@ export default function AdminDashboard() {
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
                     className="w-4 h-4"
                   />
-                  <span className="text-sm font-semibold text-foreground">Destaque</span>
+                  <span className="text-sm font-semibold text-foreground">Marcar como destaque</span>
                 </label>
               </div>
 
+              {/* Upload de Imagens */}
+              <div className="space-y-4 pt-6 border-t border-border">
+                <h4 className="font-semibold text-foreground">Fotos do Imóvel</h4>
+                <ImageUpload
+                  onImagesSelected={setSelectedImages}
+                  maxImages={10}
+                  maxSizeMB={5}
+                />
+              </div>
+
+              {/* Botões de Ação */}
               <div className="flex gap-4 pt-4">
                 <Button
                   type="submit"
-                  disabled={createPropertyMutation.isPending}
+                  disabled={createPropertyMutation.isPending || isUploading}
                   className="bg-accent hover:bg-accent/90 text-accent-foreground"
                 >
-                  {createPropertyMutation.isPending ? "Criando..." : "Criar Imóvel"}
+                  {createPropertyMutation.isPending || isUploading ? "Processando..." : "Criar Imóvel"}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowForm(false)}
+                  onClick={resetForm}
                 >
                   Cancelar
                 </Button>
