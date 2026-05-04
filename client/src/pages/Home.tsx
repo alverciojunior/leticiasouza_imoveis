@@ -196,7 +196,7 @@ export default function Home() {
               className="h-12 w-auto"
             />
             <div className="hidden sm:block">
-              <p className="font-display font-bold text-lg text-foreground leading-tight">Letícia Souza - CRECI SP 321635</p>
+              <p className="font-display font-bold text-lg text-foreground leading-tight">Letícia Souza</p>
               <p className="text-xs text-muted-foreground font-medium">Soluções Imobiliárias - CRECI SP 321635</p>
             </div>
           </div>
