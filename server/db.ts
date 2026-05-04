@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, appointments, InsertAppointment } from "../drizzle/schema";
+import { InsertUser, users, appointments, InsertAppointment, properties, InsertProperty, propertyImages, InsertPropertyImage } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -118,5 +118,129 @@ export async function getAppointments() {
   } catch (error) {
     console.error("[Database] Failed to get appointments:", error);
     return [];
+  }
+}
+
+// Property Management
+export async function createProperty(property: InsertProperty) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.insert(properties).values(property);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to create property:", error);
+    throw error;
+  }
+}
+
+export async function updateProperty(id: number, property: Partial<InsertProperty>) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.update(properties).set(property).where(eq(properties.id, id));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to update property:", error);
+    throw error;
+  }
+}
+
+export async function getProperties() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  try {
+    const result = await db.select().from(properties).orderBy(desc(properties.createdAt));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get properties:", error);
+    return [];
+  }
+}
+
+export async function getPropertyById(id: number) {
+  const db = await getDb();
+  if (!db) {
+    return null;
+  }
+
+  try {
+    const result = await db.select().from(properties).where(eq(properties.id, id)).limit(1);
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Failed to get property:", error);
+    return null;
+  }
+}
+
+export async function deleteProperty(id: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    // Delete images first
+    await db.delete(propertyImages).where(eq(propertyImages.propertyId, id));
+    // Delete property
+    const result = await db.delete(properties).where(eq(properties.id, id));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to delete property:", error);
+    throw error;
+  }
+}
+
+export async function addPropertyImage(image: InsertPropertyImage) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.insert(propertyImages).values(image);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to add property image:", error);
+    throw error;
+  }
+}
+
+export async function getPropertyImages(propertyId: number) {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  try {
+    const result = await db.select().from(propertyImages).where(eq(propertyImages.propertyId, propertyId)).orderBy(propertyImages.order);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get property images:", error);
+    return [];
+  }
+}
+
+export async function deletePropertyImage(id: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.delete(propertyImages).where(eq(propertyImages.id, id));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to delete property image:", error);
+    throw error;
   }
 }

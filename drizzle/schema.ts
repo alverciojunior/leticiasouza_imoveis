@@ -42,3 +42,31 @@ export const appointments = mysqlTable("appointments", {
 
 export type Appointment = typeof appointments.$inferSelect;
 export type InsertAppointment = typeof appointments.$inferInsert;
+export const properties = mysqlTable("properties", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  location: varchar("location", { length: 255 }).notNull(),
+  price: varchar("price", { length: 50 }).notNull(),
+  description: text("description"),
+  beds: int("beds").notNull(),
+  baths: int("baths").notNull(),
+  area: int("area").notNull(),
+  featured: int("featured").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Property = typeof properties.$inferSelect;
+export type InsertProperty = typeof properties.$inferInsert;
+
+export const propertyImages = mysqlTable("propertyImages", {
+  id: int("id").autoincrement().primaryKey(),
+  propertyId: int("propertyId").notNull(),
+  imageUrl: text("imageUrl").notNull(),
+  imageKey: varchar("imageKey", { length: 255 }).notNull(),
+  order: int("order").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PropertyImage = typeof propertyImages.$inferSelect;
+export type InsertPropertyImage = typeof propertyImages.$inferInsert;

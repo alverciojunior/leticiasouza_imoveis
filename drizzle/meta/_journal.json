@@ -15,6 +15,13 @@
       "when": 1777901265780,
       "tag": "0001_stale_madame_web",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1777901770861,
+      "tag": "0002_blue_the_call",
+      "breakpoints": true
     }
   ]
 }
