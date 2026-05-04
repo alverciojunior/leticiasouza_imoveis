@@ -48,6 +48,7 @@ export const properties = mysqlTable("properties", {
   location: varchar("location", { length: 255 }).notNull(),
   price: varchar("price", { length: 50 }).notNull(),
   description: text("description"),
+  type: mysqlEnum("type", ["Apartamentos", "Casas", "Comerciais", "Galpões", "Rurais", "Terrenos"]).notNull(),
   beds: int("beds").notNull(),
   baths: int("baths").notNull(),
   area: int("area").notNull(),

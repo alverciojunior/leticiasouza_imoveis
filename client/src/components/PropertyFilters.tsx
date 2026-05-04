@@ -10,18 +10,25 @@ export interface FilterOptions {
   minBaths: string;
   minArea: string;
   location: string;
+  type: string;
 }
 
 interface PropertyFiltersProps {
   onFilterChange: (filters: FilterOptions) => void;
   onReset: () => void;
   locations: string[];
+  types: string[];
+  minBeds: number[];
+  minBaths: number[];
 }
 
 export default function PropertyFilters({
   onFilterChange,
   onReset,
   locations,
+  types,
+  minBeds,
+  minBaths,
 }: PropertyFiltersProps) {
   const [filters, setFilters] = useState<FilterOptions>({
     minPrice: "",
@@ -30,6 +37,7 @@ export default function PropertyFilters({
     minBaths: "",
     minArea: "",
     location: "",
+    type: "",
   });
 
   const [isOpen, setIsOpen] = useState(false);
@@ -48,6 +56,7 @@ export default function PropertyFilters({
       minBaths: "",
       minArea: "",
       location: "",
+      type: "",
     });
     onReset();
   };
@@ -87,6 +96,25 @@ export default function PropertyFilters({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Type Filter */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Tipo
+            </label>
+            <select
+              value={filters.type}
+              onChange={(e) => handleFilterChange("type", e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+              <option value="">Todos os tipos</option>
+              {types.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Location Filter */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
@@ -145,11 +173,11 @@ export default function PropertyFilters({
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             >
               <option value="">Qualquer quantidade</option>
-              <option value="1">1+</option>
-              <option value="2">2+</option>
-              <option value="3">3+</option>
-              <option value="4">4+</option>
-              <option value="5">5+</option>
+              {minBeds.map((b) => (
+                <option key={b} value={b}>
+                  {b}+
+                </option>
+              ))}
             </select>
           </div>
 
@@ -164,10 +192,11 @@ export default function PropertyFilters({
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             >
               <option value="">Qualquer quantidade</option>
-              <option value="1">1+</option>
-              <option value="2">2+</option>
-              <option value="3">3+</option>
-              <option value="4">4+</option>
+              {minBaths.map((b) => (
+                <option key={b} value={b}>
+                  {b}+
+                </option>
+              ))}
             </select>
           </div>
 

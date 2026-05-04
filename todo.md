@@ -46,3 +46,10 @@
 
 ## Bugs Corrigidos (Continuação)
 - [x] Erro de string vazia no atributo src (imóveis sem imagens)
+
+## Novas Tarefas
+- [x] Adicionar campo "Tipo" no formulário de admin (Apartamentos, Casas, Comerciais, Galpões, Rurais, Terrenos)
+- [x] Adicionar filtro "Tipo" na página do cliente que só mostra opções com imóveis cadastrados
+- [x] Melhorar filtros de quartos e banheiros para só mostrar opções disponíveis
+- [x] Atualizar banco de dados com coluna "type"
+- [x] Criar testes para validação de tipo de imóvel

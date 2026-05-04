@@ -1,0 +1,1 @@
+ALTER TABLE `properties` ADD `type` enum('Apartamentos','Casas','Comerciais','Galpões','Rurais','Terrenos') NOT NULL;

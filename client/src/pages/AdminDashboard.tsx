@@ -49,6 +49,7 @@ export default function AdminDashboard() {
     title: "",
     location: "",
     price: "",
+    type: "Casas" as "Apartamentos" | "Casas" | "Comerciais" | "Galpões" | "Rurais" | "Terrenos",
     description: "",
     beds: 1,
     baths: 1,
@@ -175,6 +176,7 @@ export default function AdminDashboard() {
       title: "",
       location: "",
       price: "",
+      type: "Casas" as "Apartamentos" | "Casas" | "Comerciais" | "Galpões" | "Rurais" | "Terrenos",
       description: "",
       beds: 1,
       baths: 1,
@@ -191,10 +193,12 @@ export default function AdminDashboard() {
 
   const handleEditClick = (property: Property) => {
     setEditingId(property.id);
+    const propertyType = ((property as any).type || "Casas") as "Apartamentos" | "Casas" | "Comerciais" | "Galpões" | "Rurais" | "Terrenos";
     setFormData({
       title: property.title,
       location: property.location,
       price: property.price,
+      type: propertyType,
       description: property.description || "",
       beds: property.beds,
       baths: property.baths,
@@ -488,6 +492,25 @@ export default function AdminDashboard() {
                       placeholder="Ex: R$ 2.500.000"
                       required
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Tipo *
+                    </label>
+                    <select
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value as "Apartamentos" | "Casas" | "Comerciais" | "Galpões" | "Rurais" | "Terrenos" })}
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                      required
+                    >
+                      <option value="Apartamentos">Apartamentos</option>
+                      <option value="Casas">Casas</option>
+                      <option value="Comerciais">Comerciais</option>
+                      <option value="Galpões">Galpões</option>
+                      <option value="Rurais">Rurais</option>
+                      <option value="Terrenos">Terrenos</option>
+                    </select>
                   </div>
 
                   <div>

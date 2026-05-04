@@ -30,6 +30,7 @@ interface Property {
   description?: string;
   latitude?: string;
   longitude?: string;
+  type?: string;
 }
 
 const defaultProperties: Property[] = [
@@ -114,6 +115,7 @@ export default function Home() {
     description: p.description,
     latitude: p.latitude,
     longitude: p.longitude,
+    type: p.type || "Casas",
   }));
 
 
@@ -125,6 +127,7 @@ export default function Home() {
     minBaths: "",
     minArea: "",
     location: "",
+    type: "",
   });
   const [formData, setFormData] = useState({
     name: "",
@@ -142,6 +145,7 @@ export default function Home() {
       minBaths: params.get("minBaths") || "",
       minArea: params.get("minArea") || "",
       location: params.get("location") || "",
+      type: params.get("type") || "",
     });
   }, []);
 
@@ -153,6 +157,7 @@ export default function Home() {
     if (filters.minBaths) params.set("minBaths", filters.minBaths);
     if (filters.minArea) params.set("minArea", filters.minArea);
     if (filters.location) params.set("location", filters.location);
+    if (filters.type) params.set("type", filters.type);
 
     const queryString = params.toString();
     const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
@@ -306,11 +311,21 @@ export default function Home() {
 
           {/* Filters */}
           <div className="mb-8">
-            <PropertyFilters
-              onFilterChange={setFilters}
-              onReset={() => setFilters({ minPrice: "", maxPrice: "", minBeds: "", minBaths: "", minArea: "", location: "" })}
-              locations={Array.from(new Set(properties.map(p => p.location)))}
-            />
+            {useMemo(() => {
+              const types = Array.from(new Set(properties.map((p: any) => p.type).filter(Boolean)));
+              const minBedsOptions = Array.from(new Set(properties.map(p => p.beds).filter(b => b > 0))).sort((a, b) => a - b);
+              const minBathsOptions = Array.from(new Set(properties.map(p => p.baths).filter(b => b > 0))).sort((a, b) => a - b);
+              return (
+                <PropertyFilters
+                  onFilterChange={setFilters}
+                  onReset={() => setFilters({ minPrice: "", maxPrice: "", minBeds: "", minBaths: "", minArea: "", location: "", type: "" })}
+                  locations={Array.from(new Set(properties.map(p => p.location)))}
+                  types={types}
+                  minBeds={minBedsOptions}
+                  minBaths={minBathsOptions}
+                />
+              );
+            }, [properties])}
           </div>
 
           {/* Filtered Properties */}
@@ -330,7 +345,8 @@ export default function Home() {
                   property.beds >= minBeds &&
                   property.baths >= minBaths &&
                   property.area >= minArea &&
-                  (filters.location === "" || property.location.includes(filters.location))
+                  (filters.location === "" || property.location.includes(filters.location)) &&
+                  (filters.type === "" || (property as any).type === filters.type)
                 );
               })
               .map((property) => (
