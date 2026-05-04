@@ -4,8 +4,11 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
-import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews } from "./db";
+import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews, getAdminByEmail, createAdminUser, updateAdminPassword, getAllAdminUsers } from "./db";
+import { hashPassword, verifyPassword } from "./_core/password";
 import { storagePut } from "./storage";
+import { TRPCError } from "@trpc/server";
+const ADMIN_COOKIE_NAME = "admin_session_id";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -332,6 +335,161 @@ export const appRouter = router({
           return { success: false };
         }
       }),
+  }),
+
+  admin: router({
+    login: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email("Email inválido"),
+          password: z.string().min(1, "Senha é obrigatória"),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        try {
+          const admin = await getAdminByEmail(input.email);
+          if (!admin) {
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Email ou senha incorretos",
+            });
+          }
+
+          const isPasswordValid = verifyPassword(input.password, admin.passwordHash);
+          if (!isPasswordValid) {
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Email ou senha incorretos",
+            });
+          }
+
+          // Set admin session cookie
+          const cookieOptions = getSessionCookieOptions(ctx.req);
+          ctx.res.cookie(ADMIN_COOKIE_NAME, admin.id.toString(), {
+            ...cookieOptions,
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+          });
+
+          return {
+            success: true,
+            admin: {
+              id: admin.id,
+              email: admin.email,
+              name: admin.name,
+            },
+          };
+        } catch (error) {
+          console.error("Erro ao fazer login de admin:", error);
+          if (error instanceof TRPCError) {
+            throw error;
+          }
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Erro ao fazer login",
+          });
+        }
+      }),
+
+    logout: publicProcedure.mutation(({ ctx }) => {
+      const cookieOptions = getSessionCookieOptions(ctx.req);
+      ctx.res.clearCookie(ADMIN_COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+      return { success: true };
+    }),
+
+    changePassword: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email("Email inválido"),
+          currentPassword: z.string().min(1, "Senha atual é obrigatória"),
+          newPassword: z.string().min(8, "Nova senha deve ter pelo menos 8 caracteres"),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const admin = await getAdminByEmail(input.email);
+          if (!admin) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Usuário não encontrado",
+            });
+          }
+
+          const isPasswordValid = verifyPassword(input.currentPassword, admin.passwordHash);
+          if (!isPasswordValid) {
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Senha atual incorreta",
+            });
+          }
+
+          const newPasswordHash = hashPassword(input.newPassword);
+          await updateAdminPassword(input.email, newPasswordHash);
+
+          return { success: true };
+        } catch (error) {
+          console.error("Erro ao alterar senha:", error);
+          if (error instanceof TRPCError) {
+            throw error;
+          }
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Erro ao alterar senha",
+          });
+        }
+      }),
+
+    createUser: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email("Email inválido"),
+          password: z.string().min(8, "Senha deve ter pelo menos 8 caracteres"),
+          name: z.string().min(1, "Nome é obrigatório"),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const existingAdmin = await getAdminByEmail(input.email);
+          if (existingAdmin) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Este email já está registrado",
+            });
+          }
+
+          const passwordHash = hashPassword(input.password);
+          await createAdminUser({
+            email: input.email,
+            passwordHash,
+            name: input.name,
+          });
+
+          return { success: true };
+        } catch (error) {
+          console.error("Erro ao criar usuário admin:", error);
+          if (error instanceof TRPCError) {
+            throw error;
+          }
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Erro ao criar usuário",
+          });
+        }
+      }),
+
+    listUsers: publicProcedure.query(async () => {
+      try {
+        const admins = await getAllAdminUsers();
+        return admins.map((admin) => ({
+          id: admin.id,
+          email: admin.email,
+          name: admin.name,
+          createdAt: admin.createdAt,
+        }));
+      } catch (error) {
+        console.error("Erro ao listar usuários:", error);
+        return [];
+      }
+    }),
   }),
 });
 

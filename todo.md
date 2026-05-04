@@ -32,3 +32,12 @@
 - [x] Alterar email para leticia.frodrigues.souza@gmail.com
 - [x] Alterar nome da guia para "Letícia Souza - Soluções Imobiliárias"
 - [x] Remover "Contato Rápido" do rodapé
+
+## Autenticação Admin (Nova)
+- [x] Criar tabela de usuários admin no banco de dados
+- [x] Implementar página de login com email e senha
+- [x] Criar dois usuários iniciais (leticia e alvercio)
+- [x] Implementar mecanismo de troca de senha
+- [x] Implementar mecanismo para criar novos usuários admin
+- [x] Proteger rota /admin com autenticação
+- [x] Testar fluxo de login e logout

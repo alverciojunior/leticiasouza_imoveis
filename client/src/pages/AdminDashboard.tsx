@@ -8,6 +8,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import ImageUpload from "@/components/ImageUpload";
 import StatsDashboard from "@/components/StatsDashboard";
 import LocationMapPicker from "@/components/LocationMapPicker";
+import AdminUsers from "./AdminUsers";
 
 interface UploadedImage {
   file: File;
@@ -38,7 +39,7 @@ export default function AdminDashboard() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<"properties" | "stats">("properties");
+  const [activeTab, setActiveTab] = useState<"properties" | "stats" | "users">("properties");
   const [selectedImages, setSelectedImages] = useState<UploadedImage[]>([]);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -342,6 +343,16 @@ export default function AdminDashboard() {
           >
             <BarChart3 size={18} />
             Estatísticas
+          </button>
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`pb-3 px-4 font-semibold transition-colors ${
+              activeTab === "users"
+                ? "text-accent border-b-2 border-accent"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Usuários
           </button>
         </div>
 
@@ -693,6 +704,11 @@ export default function AdminDashboard() {
         {/* Stats Tab */}
         {activeTab === "stats" && (
           <StatsDashboard />
+        )}
+
+        {/* Users Tab */}
+        {activeTab === "users" && (
+          <AdminUsers />
         )}
 
         {/* Map Picker Modal */}

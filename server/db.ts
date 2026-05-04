@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, appointments, InsertAppointment, properties, InsertProperty, propertyImages, InsertPropertyImage, propertyViews, InsertPropertyView } from "../drizzle/schema";
+import { InsertUser, users, appointments, InsertAppointment, properties, InsertProperty, propertyImages, InsertPropertyImage, propertyViews, InsertPropertyView, adminUsers, InsertAdminUser } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -340,5 +340,66 @@ export async function getTotalViews() {
   } catch (error) {
     console.error("[Database] Failed to get total views:", error);
     return 0;
+  }
+}
+
+// Admin User Management
+export async function getAdminByEmail(email: string) {
+  const db = await getDb();
+  if (!db) {
+    return null;
+  }
+
+  try {
+    const result = await db.select().from(adminUsers).where(eq(adminUsers.email, email)).limit(1);
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Failed to get admin by email:", error);
+    return null;
+  }
+}
+
+export async function createAdminUser(admin: InsertAdminUser) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.insert(adminUsers).values(admin);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to create admin user:", error);
+    throw error;
+  }
+}
+
+export async function updateAdminPassword(email: string, passwordHash: string) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.update(adminUsers).set({ passwordHash }).where(eq(adminUsers.email, email));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to update admin password:", error);
+    throw error;
+  }
+}
+
+export async function getAllAdminUsers() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  try {
+    const result = await db.select().from(adminUsers);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get admin users:", error);
+    return [];
   }
 }

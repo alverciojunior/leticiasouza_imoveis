@@ -36,6 +36,13 @@
       "when": 1777920333732,
       "tag": "0004_giant_spot",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1777926007449,
+      "tag": "0005_lucky_war_machine",
+      "breakpoints": true
     }
   ]
 }
