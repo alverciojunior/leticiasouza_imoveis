@@ -78,21 +78,22 @@ export default function ImageCarousel({
       {/* Main Image */}
       <div className="relative w-full h-full">
         <img
-          src={images[currentIndex]}
+          src={validImages[currentIndex]}
           alt={`${title} - Imagem ${currentIndex + 1}`}
           className="w-full h-full object-cover transition-opacity duration-500"
+          crossOrigin="anonymous"
         />
 
         {/* Overlay com informações */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
           <p className="text-white text-sm font-medium">
-            {currentIndex + 1} / {images.length}
+            {currentIndex + 1} / {validImages.length}
           </p>
         </div>
       </div>
 
       {/* Navigation Buttons - Aparecem ao passar o mouse */}
-      {images.length > 1 && (
+      {validImages.length > 1 && (
         <>
           <button
             onClick={goToPrevious}
@@ -113,9 +114,9 @@ export default function ImageCarousel({
       )}
 
       {/* Dot Indicators */}
-      {images.length > 1 && (
+      {validImages.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-          {images.map((_, index) => (
+          {validImages.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
