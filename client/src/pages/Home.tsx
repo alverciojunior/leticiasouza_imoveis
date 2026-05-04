@@ -408,7 +408,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">Email</p>
-                    <p className="text-muted-foreground">alvercio.junior@gmail.com</p>
+                    <p className="text-muted-foreground">leticia.frodrigues.souza@gmail.com</p>
                   </div>
                 </div>
 
@@ -522,22 +522,12 @@ export default function Home() {
               <h4 className="font-semibold mb-4">Contato</h4>
               <ul className="space-y-2 text-sm text-background/80">
                 <li>(17) 99753-0831</li>
-                <li>alvercio.junior@gmail.com</li>
+                <li>leticia.frodrigues.souza@gmail.com</li>
                 <li>Rua Jesus Domingos Candido nº 52</li>
               </ul>
             </div>
 
-            <div>
-              <h4 className="font-semibold mb-4">Contato Rápido</h4>
-              <a
-                href="https://wa.me/5517997530831?text=Olá!%20Gostaria%20de%20saber%20mais%20sobre%20seus%20imóveis."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block w-10 h-10 bg-[#25D366] rounded-lg flex items-center justify-center hover:bg-[#20BA5A] transition-colors text-white font-bold"
-              >
-                W
-              </a>
-            </div>
+
           </div>
 
           <div className="border-t border-background/20 pt-8">

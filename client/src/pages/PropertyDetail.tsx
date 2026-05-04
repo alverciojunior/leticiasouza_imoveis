@@ -319,7 +319,7 @@ export default function PropertyDetail() {
                     <Mail className="text-accent flex-shrink-0" size={20} />
                     <div>
                       <p className="font-semibold text-foreground">Email</p>
-                      <p className="text-muted-foreground">alvercio.junior@gmail.com</p>
+                      <p className="text-muted-foreground">leticia.frodrigues.souza@gmail.com</p>
                     </div>
                   </div>
                 </div>

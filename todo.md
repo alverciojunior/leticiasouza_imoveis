@@ -27,3 +27,6 @@
 - [x] Mapeamento de imagens do banco de dados
 - [x] Upload de imagens para S3
 - [x] Alterar título da guia do navegador para "Leticia Souza - Imóveis"
+- [x] Alterar email para leticia.frodrigues.souza@gmail.com
+- [x] Alterar nome da guia para "Letícia Souza - Soluções Imobiliárias"
+- [x] Remover "Contato Rápido" do rodapé
