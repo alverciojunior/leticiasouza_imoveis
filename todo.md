@@ -17,7 +17,9 @@
 - [x] Testar criação de imóvel com coordenadas personalizadas
 - [x] Testar edição de imóvel com atualização de coordenadas
 - [x] Verificar se o mapa usa corretamente as coordenadas do banco
-- [ ] (Opcional) Integrar seletor de mapa interativo no admin
+- [x] (Opcional) Integrar seletor de mapa interativo no admin
+- [x] Corrigir e validar o clique no mapa para atualizar latitude/longitude
+- [x] Garantir sincronização entre edição manual e marcador do mapa
 - [ ] (Opcional) Validar coordenadas no backend
 - [ ] (Opcional) Adicionar geocodificação automática por endereço
 

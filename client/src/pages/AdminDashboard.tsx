@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trash2, Edit2, Plus, LogOut, X, BarChart3 } from "lucide-react";
+import { Trash2, Edit2, Plus, LogOut, X, BarChart3, MapPin } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
 import ImageUpload from "@/components/ImageUpload";
 import StatsDashboard from "@/components/StatsDashboard";
+import LocationMapPicker from "@/components/LocationMapPicker";
 
 interface UploadedImage {
   file: File;
@@ -41,6 +42,7 @@ export default function AdminDashboard() {
   const [selectedImages, setSelectedImages] = useState<UploadedImage[]>([]);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [showMapPicker, setShowMapPicker] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     location: "",
@@ -481,7 +483,17 @@ export default function AdminDashboard() {
 
                 {/* Localização (Coordenadas) */}
                 <div className="mt-6 pt-6 border-t border-border">
-                  <h4 className="font-semibold text-foreground mb-4">Localização (Apenas para mapa - Não visível ao cliente)</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-semibold text-foreground">Localização (Apenas para mapa - Não visível ao cliente)</h4>
+                    <Button
+                      type="button"
+                      onClick={() => setShowMapPicker(true)}
+                      className="bg-accent hover:bg-accent/90 text-accent-foreground flex items-center gap-2 text-sm"
+                    >
+                      <MapPin size={16} />
+                      Selecionar no Mapa
+                    </Button>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-foreground mb-2">
@@ -681,6 +693,18 @@ export default function AdminDashboard() {
         {/* Stats Tab */}
         {activeTab === "stats" && (
           <StatsDashboard />
+        )}
+
+        {/* Map Picker Modal */}
+        {showMapPicker && (
+          <LocationMapPicker
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            onLocationChange={(lat, lng) => {
+              setFormData({ ...formData, latitude: lat, longitude: lng });
+            }}
+            onClose={() => setShowMapPicker(false)}
+          />
         )}
       </div>
     </div>
