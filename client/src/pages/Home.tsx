@@ -101,22 +101,32 @@ const defaultProperties: Property[] = [
 export default function Home() {
   const { data: propertiesData = [] } = trpc.properties.getAll.useQuery();
   const PLACEHOLDER_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/hero-luxury-home-fCQMtSy6nEmPgJoZQTvaNq.webp";
-  const properties: Property[] = propertiesData.map((p: any) => ({
-    id: p.id,
-    title: p.title,
-    location: p.location,
-    price: p.price,
-    image: p.images?.[0]?.imageUrl || PLACEHOLDER_IMAGE,
-    images: p.images?.map((img: any) => img.imageUrl) || [],
-    beds: p.beds,
-    baths: p.baths,
-    area: p.area,
-    featured: p.featured,
-    description: p.description,
-    latitude: p.latitude,
-    longitude: p.longitude,
-    type: p.type || "Casas",
-  }));
+  const properties: Property[] = propertiesData.map((p: any) => {
+    const imageUrls = p.images?.map((img: any) => {
+      const url = img.imageUrl || img.url || "";
+      if (url && !url.startsWith('http') && !url.startsWith('/manus-storage/')) {
+        return `/manus-storage/${url}`;
+      }
+      return url;
+    }) || [];
+    
+    return {
+      id: p.id,
+      title: p.title,
+      location: p.location,
+      price: p.price,
+      image: imageUrls?.[0] || PLACEHOLDER_IMAGE,
+      images: imageUrls,
+      beds: p.beds,
+      baths: p.baths,
+      area: p.area,
+      featured: p.featured,
+      description: p.description,
+      latitude: p.latitude,
+      longitude: p.longitude,
+      type: p.type || "Casas",
+    };
+  });
 
 
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);

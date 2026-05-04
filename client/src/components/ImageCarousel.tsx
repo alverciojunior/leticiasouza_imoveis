@@ -60,6 +60,15 @@ export default function ImageCarousel({
     );
   }
 
+  const validImages = images.filter(img => img && img.trim() !== "");
+  if (validImages.length === 0) {
+    return (
+      <div className="w-full h-96 bg-secondary/30 rounded-lg flex items-center justify-center">
+        <p className="text-muted-foreground">Nenhuma imagem válida disponível</p>
+      </div>
+    );
+  }
+
   return (
     <div
       className="relative w-full h-96 bg-black rounded-lg overflow-hidden group"

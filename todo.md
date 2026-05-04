@@ -66,3 +66,6 @@
 - [x] Integrar marca d'agua no upload de imagens
 - [x] Testar marca d'agua em diferentes tamanhos de imagem
 - [x] Criar testes para validação de marca d'agua
+
+## Bugs em Correção
+- [x] Imagens não estão carregando na página de detalhes e prévia

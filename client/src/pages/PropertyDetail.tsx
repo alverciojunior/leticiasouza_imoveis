@@ -122,20 +122,30 @@ export default function PropertyDetail() {
   const propertyId = params?.id ? parseInt(params.id) : null;
   
   const { data: propertiesData = [] } = trpc.properties.getAll.useQuery();
-  const allProperties = propertiesData.map((p: any) => ({
-    id: p.id,
-    title: p.title,
-    location: p.location,
-    price: p.price,
-    image: p.images?.[0]?.imageUrl || "",
-    images: p.images?.map((img: any) => img.imageUrl) || [],
-    beds: p.beds,
-    baths: p.baths,
-    area: p.area,
-    description: p.description,
-    latitude: p.latitude || -20.5105,
-    longitude: p.longitude || -48.7789,
-  }));
+  const allProperties = propertiesData.map((p: any) => {
+    const imageUrls = p.images?.map((img: any) => {
+      const url = img.imageUrl || img.url || "";
+      if (url && !url.startsWith('http') && !url.startsWith('/manus-storage/')) {
+        return `/manus-storage/${url}`;
+      }
+      return url;
+    }) || [];
+    
+    return {
+      id: p.id,
+      title: p.title,
+      location: p.location,
+      price: p.price,
+      image: imageUrls?.[0] || "",
+      images: imageUrls,
+      beds: p.beds,
+      baths: p.baths,
+      area: p.area,
+      description: p.description,
+      latitude: p.latitude || -20.5105,
+      longitude: p.longitude || -48.7789,
+    };
+  });
   
   const property = propertyId ? allProperties.find(p => p.id === propertyId) : null;
 
