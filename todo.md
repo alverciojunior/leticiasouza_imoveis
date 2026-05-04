@@ -13,7 +13,7 @@
 - [x] Migração para banco de dados MySQL
 - [x] Campos de latitude e longitude no formulário de admin
 
-## Próximas Tarefas
+## Próximas Tarefas (Opcionais)
 - [x] Testar criação de imóvel com coordenadas personalizadas
 - [x] Testar edição de imóvel com atualização de coordenadas
 - [x] Verificar se o mapa usa corretamente as coordenadas do banco
@@ -41,3 +41,8 @@
 - [x] Implementar mecanismo para criar novos usuários admin
 - [x] Proteger rota /admin com autenticação
 - [x] Testar fluxo de login e logout
+
+## Publicação (Nova)
+- [x] Alterar título da guia para "Letícia Souza - Soluções Imobiliárias"
+- [x] Adicionar logo como favicon
+- [ ] Publicar com domínio leticiasouzaimoveis.com.br
