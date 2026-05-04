@@ -9,6 +9,7 @@ import { hashPassword, verifyPassword } from "./_core/password";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
 import { makeRequest, GeocodingResult } from "./_core/map";
+import { addWatermark } from "./watermark";
 const ADMIN_COOKIE_NAME = "admin_session_id";
 
 export const appRouter = router({
@@ -220,9 +221,12 @@ export const appRouter = router({
             .replace(/[^a-zA-Z0-9._-]/g, '') // Remover caracteres especiais
             .toLowerCase();
           
+          // Adicionar marca d'água à imagem
+          const watermarkedBuffer = await addWatermark(buffer);
+          
           const { url, key } = await storagePut(
             `properties/${input.propertyId}/${Date.now()}-${sanitizedFileName}`,
-            buffer,
+            watermarkedBuffer,
             'image/jpeg'
           );
           

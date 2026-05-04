@@ -63,3 +63,11 @@
 
 ## Bugs em Correção
 - [x] Upload de imagem real causa crash (imagem fictícia funciona) - Sanitizado nomes de arquivo removendo espaços
+
+## Marca D'água (Re-implementação)
+- [x] Adicionar marca d'água com Sharp após upload bem-sucedido
+- [x] Testar marca d'água com imagens reais
+- [x] Validar que marca d'água não quebra o carregamento
+- [x] Implementar tratamento de erro explícito (falha se logo não existir)
+- [x] Adicionar testes de integração do fluxo completo de upload
+- [x] Validar que imagens watermarked mantêm qualidade JPEG
