@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Trash2, Edit2, Plus, LogOut, X, BarChart3, MapPin } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useAdminAuth } from "@/_core/hooks/useAdminAuth";
 import ImageUpload from "@/components/ImageUpload";
 import StatsDashboard from "@/components/StatsDashboard";
 import LocationMapPicker from "@/components/LocationMapPicker";
@@ -35,7 +35,7 @@ interface Property {
 }
 
 export default function AdminDashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAdminAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -287,6 +287,17 @@ export default function AdminDashboard() {
       deleteImageMutation.mutate({ id: imageId });
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
