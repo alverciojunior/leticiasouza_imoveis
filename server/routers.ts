@@ -9,6 +9,8 @@ import { hashPassword, verifyPassword } from "./_core/password";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
 import { makeRequest, GeocodingResult } from "./_core/map";
+import { addWatermark } from "./watermark";
+import path from "path";
 const ADMIN_COOKIE_NAME = "admin_session_id";
 
 export const appRouter = router({
@@ -200,7 +202,11 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         try {
           const base64Data = input.imageData.split(',')[1];
-          const buffer = Buffer.from(base64Data, 'base64');
+          let buffer = Buffer.from(base64Data, 'base64');
+          
+          // Add watermark to image
+          const watermarkPath = path.join(process.cwd(), '../webdev-static-assets/watermark-logo.jpg');
+          buffer = await addWatermark(buffer, watermarkPath);
           
           const { url, key } = await storagePut(
             `properties/${input.propertyId}/${Date.now()}-${input.fileName}`,

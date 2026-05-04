@@ -59,3 +59,10 @@
 - [x] Implementar lógica de ordenação por preço (menor/maior) e data
 - [x] Persistir ordenação na URL
 - [x] Criar testes para validação de ordenação
+
+## Marca D'agua em Imagens
+- [x] Copiar logo para assets do projeto
+- [x] Implementar função de adição de marca d'agua com Sharp/Pillow
+- [x] Integrar marca d'agua no upload de imagens
+- [x] Testar marca d'agua em diferentes tamanhos de imagem
+- [x] Criar testes para validação de marca d'agua
