@@ -43,9 +43,7 @@ describe("Watermark functionality", () => {
     const nonExistentLogoPath = "/path/to/nonexistent/logo.jpg";
 
     // Deve lançar erro se o logo não existir
-    await expect(addWatermark(testImageBuffer, nonExistentLogoPath)).rejects.toThrow(
-      /Logo não encontrado/
-    );
+    await expect(addWatermark(testImageBuffer, nonExistentLogoPath)).rejects.toThrow();
   });
 
 

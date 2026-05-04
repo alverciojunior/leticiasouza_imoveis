@@ -11,13 +11,8 @@ import path from 'path';
  */
 export async function addWatermark(
   imageBuffer: Buffer,
-  logoPath: string = '/home/ubuntu/webdev-static-assets/leticia-souza-logo.jpg'
+  logoPath: string = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663542972229/plxTTJQxFnbSvwDw.jpg'
 ): Promise<Buffer> {
-  // Verificar se o logo existe
-  if (!fs.existsSync(logoPath)) {
-    throw new Error(`Logo não encontrado em ${logoPath}`);
-  }
-
   try {
     // Obter metadados da imagem original
     const metadata = await sharp(imageBuffer).metadata();
