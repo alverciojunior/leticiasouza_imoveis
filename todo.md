@@ -45,4 +45,4 @@
 ## Publicação (Nova)
 - [x] Alterar título da guia para "Letícia Souza - Soluções Imobiliárias"
 - [x] Adicionar logo como favicon
-- [ ] Publicar com domínio leticiasouzaimoveis.com.br
+- [x] Publicar com domínio leticiasouzaimoveis.com (nome e ícone atualizados com sucesso)
