@@ -5,13 +5,13 @@ import path from 'path';
 /**
  * Adiciona marca d'água a uma imagem com opacidade
  * @param imageBuffer Buffer da imagem original
- * @param logoPath Caminho do arquivo de logo
+ * @param logoUrl URL ou caminho do arquivo de logo
  * @returns Buffer da imagem com marca d'água
  * @throws Error se o logo não existir ou se houver erro ao processar
  */
 export async function addWatermark(
   imageBuffer: Buffer,
-  logoPath: string = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663542972229/plxTTJQxFnbSvwDw.jpg'
+  logoUrl: string = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663542972229/plxTTJQxFnbSvwDw.jpg'
 ): Promise<Buffer> {
   try {
     // Obter metadados da imagem original
@@ -26,9 +26,25 @@ export async function addWatermark(
       throw new Error('Imagem muito pequena para adicionar marca d\'água');
     }
 
+    // Fazer download do logo se for URL
+    let logoBuffer: Buffer;
+    if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) {
+      const response = await fetch(logoUrl);
+      if (!response.ok) {
+        throw new Error(`Falha ao fazer download do logo: ${response.statusText}`);
+      }
+      logoBuffer = Buffer.from(await response.arrayBuffer());
+    } else {
+      // Se for caminho local, ler arquivo
+      if (!fs.existsSync(logoUrl)) {
+        throw new Error(`Logo não encontrado em ${logoUrl}`);
+      }
+      logoBuffer = fs.readFileSync(logoUrl);
+    }
+
     // Redimensionar logo removendo espaços em branco
     // Usar trim() para remover bordas transparentes/vazias
-    const resizedLogo = await sharp(logoPath)
+    const resizedLogo = await sharp(logoBuffer)
       .resize(logoWidth, logoWidth, {
         fit: 'inside',
         withoutEnlargement: true,
