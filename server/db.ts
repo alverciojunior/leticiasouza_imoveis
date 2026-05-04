@@ -245,6 +245,22 @@ export async function deletePropertyImage(id: number) {
   }
 }
 
+export async function deleteAllPropertyImages(propertyId: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.delete(propertyImages).where(eq(propertyImages.propertyId, propertyId));
+    console.log(`[Database] Deleted all images for property ${propertyId}`);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to delete all property images:", error);
+    throw error;
+  }
+}
+
 
 export async function recordPropertyView(propertyId: number) {
   const db = await getDb();

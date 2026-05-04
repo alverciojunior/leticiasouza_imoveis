@@ -1,10 +1,10 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
-import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews, getAdminByEmail, createAdminUser, updateAdminPassword, getAllAdminUsers } from "./db";
+import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, deleteAllPropertyImages, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews, getAdminByEmail, createAdminUser, updateAdminPassword, getAllAdminUsers } from "./db";
 import { hashPassword, verifyPassword } from "./_core/password";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
@@ -278,6 +278,18 @@ export const appRouter = router({
         }
       }),
 
+    deleteAllImages: adminProcedure
+      .input(z.object({ propertyId: z.number() }))
+      .mutation(async ({ input }) => {
+        try {
+          await deleteAllPropertyImages(input.propertyId);
+          console.log(`[deleteAllImages] Todas as imagens removidas para propriedade ${input.propertyId}`);
+          return { success: true };
+        } catch (error) {
+          console.error("Erro ao deletar todas as imagens:", error);
+          throw new Error("Erro ao deletar todas as imagens");
+        }
+      }),
     geocode: publicProcedure
       .input(z.object({ address: z.string().min(1, "Endereco eh obrigatorio") }))
       .mutation(async ({ input }) => {

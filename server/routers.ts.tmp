@@ -1,0 +1,13 @@
+
+    deleteAllImages: publicProcedure
+      .input(z.object({ propertyId: z.number() }))
+      .mutation(async ({ input }) => {
+        try {
+          await deleteAllPropertyImages(input.propertyId);
+          console.log(`[deleteAllImages] Todas as imagens removidas para propriedade ${input.propertyId}`);
+          return { success: true };
+        } catch (error) {
+          console.error("Erro ao deletar todas as imagens:", error);
+          throw new Error("Erro ao deletar todas as imagens");
+        }
+      }),

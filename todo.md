@@ -74,3 +74,11 @@
 
 ## Bugs em Correção (Marca d'Água)
 - [x] Remover tarjas pretas acima e abaixo do logo na marca d'água
+
+## Novas Funcionalidades (Admin)
+- [x] Adicionar botão para remover todas as imagens de um anúncio
+- [x] Implementar procedure no backend para remover todas as imagens
+- [x] Adicionar confirmação de exclusão
+- [x] Testar funcionalidade no Admin Dashboard
+- [x] Proteger deleteAllImages com adminProcedure
+- [x] Adicionar testes automatizados para deleteAllImages

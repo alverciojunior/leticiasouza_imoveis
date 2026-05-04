@@ -127,6 +127,23 @@ export default function AdminDashboard() {
     },
   });
 
+  const deleteAllImagesMutation = trpc.properties.deleteAllImages.useMutation({
+    onSuccess: () => {
+      toast.success("Todas as imagens removidas com sucesso!", {
+        description: "Todas as fotos do imóvel foram removidas.",
+        duration: 3000,
+      });
+      setExistingImages([]);
+      propertiesQuery.refetch();
+    },
+    onError: (error) => {
+      toast.error("Erro ao remover imagens", {
+        description: error.message || "Não foi possível remover as imagens.",
+        duration: 5000,
+      });
+    },
+  });
+
   const geocodeMutation = trpc.properties.geocode.useMutation({
     onSuccess: (data) => {
       setFormData((prev) => ({
@@ -329,6 +346,14 @@ export default function AdminDashboard() {
   const handleDeleteImage = (imageId: number) => {
     if (confirm("Tem certeza que deseja remover esta imagem?")) {
       deleteImageMutation.mutate({ id: imageId });
+    }
+  };
+
+  const handleDeleteAllImages = () => {
+    if (confirm("Tem certeza que deseja remover TODAS as imagens deste imóvel? Esta ação não pode ser desfeita.")) {
+      if (editingId) {
+        deleteAllImagesMutation.mutate({ propertyId: editingId });
+      }
     }
   };
 
@@ -635,7 +660,18 @@ export default function AdminDashboard() {
               {/* Imagens Existentes */}
               {editingId && existingImages.length > 0 && (
                 <div className="space-y-4 pt-6 border-t border-border">
-                  <h4 className="font-semibold text-foreground">Fotos Atuais</h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-foreground">Fotos Atuais</h4>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAllImages()}
+                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors flex items-center gap-2"
+                      title="Remover todas as imagens"
+                    >
+                      <Trash2 size={16} />
+                      Remover Todas
+                    </button>
+                  </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {existingImages.map((image, index) => (
                       <div
