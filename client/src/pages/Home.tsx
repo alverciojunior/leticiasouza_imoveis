@@ -190,10 +190,10 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
             {properties.filter(p => p.featured).map((property) => (
-              <div
+              <a
                 key={property.id}
-                className="group cursor-pointer"
-                onClick={() => setSelectedProperty(property)}
+                href={`/property/${property.id}`}
+                className="group cursor-pointer block"
               >
                 <div className="relative overflow-hidden rounded-lg mb-4 h-80">
                   <img
@@ -226,7 +226,7 @@ export default function Home() {
                     <span>{property.area} m²</span>
                   </div>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -242,10 +242,13 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {properties.map((property) => (
-              <Card
+              <a
                 key={property.id}
+                href={`/property/${property.id}`}
+                className="block"
+              >
+              <Card
                 className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
-                onClick={() => setSelectedProperty(property)}
               >
                 <div className="relative overflow-hidden h-48">
                   <img
@@ -281,6 +284,7 @@ export default function Home() {
                   </div>
                 </div>
               </Card>
+              </a>
             ))}
           </div>
         </div>
