@@ -14,8 +14,8 @@
 - [x] Campos de latitude e longitude no formulário de admin
 
 ## Tarefas Opcionais (Não Implementadas)
-- [ ] Validar coordenadas no backend (intervalo válido)
-- [ ] Adicionar geocodificação automática por endereço
+- [x] Validar coordenadas no backend (intervalo válido)
+- [x] Adicionar geocodificação automática por endereço
 
 ## Bugs Corrigidos
 - [x] Google Maps não carregava corretamente

@@ -8,6 +8,7 @@ import { createAppointment, getAppointments, createProperty, updateProperty, get
 import { hashPassword, verifyPassword } from "./_core/password";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
+import { makeRequest, GeocodingResult } from "./_core/map";
 const ADMIN_COOKIE_NAME = "admin_session_id";
 
 export const appRouter = router({
@@ -115,8 +116,8 @@ export const appRouter = router({
           baths: z.number().min(0),
           area: z.number().min(1),
           featured: z.boolean().default(false),
-          latitude: z.number().optional(),
-          longitude: z.number().optional(),
+          latitude: z.number().min(-90).max(90).optional(),
+          longitude: z.number().min(-180).max(180).optional(),
         })
       )
       .mutation(async ({ input }) => {
@@ -146,8 +147,8 @@ export const appRouter = router({
           baths: z.number().optional(),
           area: z.number().optional(),
           featured: z.boolean().optional(),
-          latitude: z.number().optional(),
-          longitude: z.number().optional(),
+          latitude: z.number().min(-90).max(90).optional(),
+          longitude: z.number().min(-180).max(180).optional(),
         })
       )
       .mutation(async ({ input }) => {
@@ -247,6 +248,32 @@ export const appRouter = router({
         } catch (error) {
           console.error("Erro ao deletar imagem:", error);
           throw new Error("Erro ao deletar imagem");
+        }
+      }),
+
+    geocode: publicProcedure
+      .input(z.object({ address: z.string().min(1, "Endereco eh obrigatorio") }))
+      .mutation(async ({ input }) => {
+        try {
+          const result = await makeRequest<GeocodingResult>(
+            "/maps/api/geocode/json",
+            { address: input.address }
+          );
+
+          if (result.status !== "OK" || !result.results.length) {
+            throw new Error("Endereco nao encontrado");
+          }
+
+          const location = result.results[0].geometry.location;
+          return {
+            success: true,
+            latitude: location.lat,
+            longitude: location.lng,
+            address: result.results[0].formatted_address,
+          };
+        } catch (error) {
+          console.error("Erro ao geocodificar endereco:", error);
+          throw new Error("Erro ao geocodificar endereco");
         }
       }),
   }),

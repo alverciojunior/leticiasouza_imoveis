@@ -43,6 +43,7 @@ export default function AdminDashboard() {
   const [selectedImages, setSelectedImages] = useState<UploadedImage[]>([]);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
   const [showMapPicker, setShowMapPicker] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -125,6 +126,26 @@ export default function AdminDashboard() {
     },
   });
 
+  const geocodeMutation = trpc.properties.geocode.useMutation({
+    onSuccess: (data) => {
+      setFormData((prev) => ({
+        ...prev,
+        latitude: data.latitude,
+        longitude: data.longitude,
+      }));
+      toast.success("Coordenadas encontradas!", {
+        description: `${data.address}`,
+        duration: 4000,
+      });
+    },
+    onError: (error) => {
+      toast.error("Erro ao geocodificar endereço", {
+        description: error.message || "Endereço não encontrado. Tente novamente.",
+        duration: 5000,
+      });
+    },
+  });
+
   const addImageMutation = trpc.properties.uploadImage.useMutation({
     onError: (error) => {
       toast.error("Erro ao adicionar imagem", {
@@ -185,6 +206,25 @@ export default function AdminDashboard() {
     setExistingImages(property.images || []);
     setSelectedImages([]);
     setShowForm(true);
+  };
+
+  const handleGeocode = async () => {
+    if (!formData.location.trim()) {
+      toast.error("Campo de localizacao vazio", {
+        description: "Preencha o campo de localizacao antes de geocodificar.",
+        duration: 4000,
+      });
+      return;
+    }
+
+    setIsGeocoding(true);
+    try {
+      await geocodeMutation.mutateAsync({
+        address: formData.location,
+      });
+    } finally {
+      setIsGeocoding(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -507,14 +547,24 @@ export default function AdminDashboard() {
                 <div className="mt-6 pt-6 border-t border-border">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-semibold text-foreground">Localização (Apenas para mapa - Não visível ao cliente)</h4>
-                    <Button
-                      type="button"
-                      onClick={() => setShowMapPicker(true)}
-                      className="bg-accent hover:bg-accent/90 text-accent-foreground flex items-center gap-2 text-sm"
-                    >
-                      <MapPin size={16} />
-                      Selecionar no Mapa
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        onClick={handleGeocode}
+                        disabled={isGeocoding}
+                        className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 text-sm"
+                      >
+                        {isGeocoding ? "Geocodificando..." : "Geocodificar Endereco"}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => setShowMapPicker(true)}
+                        className="bg-accent hover:bg-accent/90 text-accent-foreground flex items-center gap-2 text-sm"
+                      >
+                        <MapPin size={16} />
+                        Selecionar no Mapa
+                      </Button>
+                    </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
