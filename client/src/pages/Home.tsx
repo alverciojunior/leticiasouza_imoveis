@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Phone, Mail, MapPin, Bed, Bath, Ruler } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import ImageCarousel from "@/components/ImageCarousel";
+import PropertyFilters, { FilterOptions } from "@/components/PropertyFilters";
 
 /**
  * Design Philosophy: Minimalismo Contemporâneo Premium
@@ -95,12 +96,46 @@ const properties: Property[] = [
 
 export default function Home() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [filters, setFilters] = useState<FilterOptions>({
+    minPrice: "",
+    maxPrice: "",
+    minBeds: "",
+    minBaths: "",
+    minArea: "",
+    location: "",
+  });
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setFilters({
+      minPrice: params.get("minPrice") || "",
+      maxPrice: params.get("maxPrice") || "",
+      minBeds: params.get("minBeds") || "",
+      minBaths: params.get("minBaths") || "",
+      minArea: params.get("minArea") || "",
+      location: params.get("location") || "",
+    });
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filters.minPrice) params.set("minPrice", filters.minPrice);
+    if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
+    if (filters.minBeds) params.set("minBeds", filters.minBeds);
+    if (filters.minBaths) params.set("minBaths", filters.minBaths);
+    if (filters.minArea) params.set("minArea", filters.minArea);
+    if (filters.location) params.set("location", filters.location);
+
+    const queryString = params.toString();
+    const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+    window.history.replaceState({}, "", newUrl);
+  }, [filters]);
 
   const sendContactMutation = trpc.contact.sendMessage.useMutation({
     onSuccess: () => {
@@ -253,8 +288,36 @@ export default function Home() {
             <p className="text-muted-foreground text-lg">Explore nossa carteira completa de propriedades</p>
           </div>
 
+          {/* Filters */}
+          <div className="mb-8">
+            <PropertyFilters
+              onFilterChange={setFilters}
+              onReset={() => setFilters({ minPrice: "", maxPrice: "", minBeds: "", minBaths: "", minArea: "", location: "" })}
+              locations={Array.from(new Set(properties.map(p => p.location)))}
+            />
+          </div>
+
+          {/* Filtered Properties */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {properties.map((property) => (
+            {properties
+              .filter((property) => {
+                const price = parseInt(property.price.replace(/[^0-9]/g, ""));
+                const minPrice = filters.minPrice ? parseInt(filters.minPrice) : 0;
+                const maxPrice = filters.maxPrice ? parseInt(filters.maxPrice) : Infinity;
+                const minBeds = filters.minBeds ? parseInt(filters.minBeds) : 0;
+                const minBaths = filters.minBaths ? parseInt(filters.minBaths) : 0;
+                const minArea = filters.minArea ? parseInt(filters.minArea) : 0;
+
+                return (
+                  price >= minPrice &&
+                  price <= maxPrice &&
+                  property.beds >= minBeds &&
+                  property.baths >= minBaths &&
+                  property.area >= minArea &&
+                  (filters.location === "" || property.location.includes(filters.location))
+                );
+              })
+              .map((property) => (
               <a
                 key={property.id}
                 href={`/property/${property.id}`}
