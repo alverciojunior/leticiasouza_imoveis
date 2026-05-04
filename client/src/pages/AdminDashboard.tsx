@@ -55,48 +55,75 @@ export default function AdminDashboard() {
   const createPropertyMutation = trpc.properties.create.useMutation({
     onSuccess: async () => {
       await propertiesQuery.refetch();
-      toast.success("Imóvel criado com sucesso!");
+      toast.success("Imóvel criado com sucesso!", {
+        description: `${formData.title} foi adicionado à sua carteira.`,
+        duration: 4000,
+      });
       resetForm();
     },
-    onError: () => {
-      toast.error("Erro ao criar imóvel");
+    onError: (error) => {
+      toast.error("Erro ao criar imóvel", {
+        description: error.message || "Verifique os dados e tente novamente.",
+        duration: 5000,
+      });
     },
   });
 
   const updatePropertyMutation = trpc.properties.update.useMutation({
     onSuccess: async () => {
       await propertiesQuery.refetch();
-      toast.success("Imóvel atualizado com sucesso!");
+      toast.success("Imóvel atualizado com sucesso!", {
+        description: `${formData.title} foi atualizado com as novas informações.`,
+        duration: 4000,
+      });
       resetForm();
     },
-    onError: () => {
-      toast.error("Erro ao atualizar imóvel");
+    onError: (error) => {
+      toast.error("Erro ao atualizar imóvel", {
+        description: error.message || "Verifique os dados e tente novamente.",
+        duration: 5000,
+      });
     },
   });
 
   const deletePropertyMutation = trpc.properties.delete.useMutation({
     onSuccess: () => {
-      toast.success("Imóvel deletado com sucesso!");
+      toast.success("Imóvel deletado com sucesso!", {
+        description: "A propriedade foi removida de sua carteira.",
+        duration: 4000,
+      });
       propertiesQuery.refetch();
     },
-    onError: () => {
-      toast.error("Erro ao deletar imóvel");
+    onError: (error) => {
+      toast.error("Erro ao deletar imóvel", {
+        description: error.message || "Não foi possível remover o imóvel.",
+        duration: 5000,
+      });
     },
   });
 
   const deleteImageMutation = trpc.properties.deleteImage.useMutation({
     onSuccess: () => {
-      toast.success("Imagem removida com sucesso!");
+      toast.success("Imagem removida com sucesso!", {
+        description: "A foto foi removida do imóvel.",
+        duration: 3000,
+      });
       propertiesQuery.refetch();
     },
-    onError: () => {
-      toast.error("Erro ao remover imagem");
+    onError: (error) => {
+      toast.error("Erro ao remover imagem", {
+        description: error.message || "Não foi possível remover a imagem.",
+        duration: 5000,
+      });
     },
   });
 
   const addImageMutation = trpc.properties.addImage.useMutation({
-    onError: () => {
-      toast.error("Erro ao adicionar imagem");
+    onError: (error) => {
+      toast.error("Erro ao adicionar imagem", {
+        description: error.message || "Verifique o arquivo e tente novamente.",
+        duration: 5000,
+      });
     },
   });
 
@@ -142,8 +169,17 @@ export default function AdminDashboard() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.location || !formData.price) {
-      toast.error("Preencha todos os campos obrigatórios");
+    
+    const missingFields = [];
+    if (!formData.title) missingFields.push("Título");
+    if (!formData.location) missingFields.push("Localização");
+    if (!formData.price) missingFields.push("Preço");
+    
+    if (missingFields.length > 0) {
+      toast.error("Campos obrigatórios faltando", {
+        description: `Preencha: ${missingFields.join(", ")}`,
+        duration: 5000,
+      });
       return;
     }
 
@@ -407,9 +443,13 @@ export default function AdminDashboard() {
                 <Button
                   type="submit"
                   disabled={createPropertyMutation.isPending || updatePropertyMutation.isPending || isUploading}
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  {isUploading ? "Processando..." : editingId ? "Atualizar Imóvel" : "Criar Imóvel"}
+                  {isUploading || createPropertyMutation.isPending || updatePropertyMutation.isPending ? (
+                    <>{editingId ? "Atualizando..." : "Criando..."}</>
+                  ) : (
+                    <>{editingId ? "Atualizar Imóvel" : "Criar Imóvel"}</>
+                  )}
                 </Button>
                 <Button
                   type="button"
