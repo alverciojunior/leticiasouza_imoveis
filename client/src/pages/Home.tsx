@@ -133,7 +133,7 @@ export default function Home() {
         <div className="container flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/pasted_file_bXJ7Cn_image_c4580c13.png"
+              src="/manus-storage/pasted_file_bXJ7Cn_image_a5d72df7.png"
               alt="Letícia Souza Soluções Imobiliárias"
               className="h-12 w-auto"
             />
@@ -405,7 +405,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/pasted_file_bXJ7Cn_image_c4580c13.png"
+                src="/manus-storage/pasted_file_bXJ7Cn_image_a5d72df7.png"
                 alt="Letícia Souza Soluções Imobiliárias"
                 className="h-10 w-auto mb-4"
               />
