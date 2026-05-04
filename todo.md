@@ -13,15 +13,9 @@
 - [x] Migração para banco de dados MySQL
 - [x] Campos de latitude e longitude no formulário de admin
 
-## Próximas Tarefas (Opcionais)
-- [x] Testar criação de imóvel com coordenadas personalizadas
-- [x] Testar edição de imóvel com atualização de coordenadas
-- [x] Verificar se o mapa usa corretamente as coordenadas do banco
-- [x] (Opcional) Integrar seletor de mapa interativo no admin
-- [x] Corrigir e validar o clique no mapa para atualizar latitude/longitude
-- [x] Garantir sincronização entre edição manual e marcador do mapa
-- [ ] (Opcional) Validar coordenadas no backend
-- [ ] (Opcional) Adicionar geocodificação automática por endereço
+## Tarefas Opcionais (Não Implementadas)
+- [ ] Validar coordenadas no backend (intervalo válido)
+- [ ] Adicionar geocodificação automática por endereço
 
 ## Bugs Corrigidos
 - [x] Google Maps não carregava corretamente
@@ -46,3 +40,6 @@
 - [x] Alterar título da guia para "Letícia Souza - Soluções Imobiliárias"
 - [x] Adicionar logo como favicon
 - [x] Publicar com domínio leticiasouzaimoveis.com (nome e ícone atualizados com sucesso)
+
+## Correções (Nova)
+- [x] Permitir 0 quartos e banheiros para terrenos

@@ -459,7 +459,7 @@ export default function AdminDashboard() {
                       value={formData.beds}
                       onChange={(e) => setFormData({ ...formData, beds: Number(e.target.value) })}
                       className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                      min="1"
+                      min="0"
                     />
                   </div>
 
@@ -472,7 +472,7 @@ export default function AdminDashboard() {
                       value={formData.baths}
                       onChange={(e) => setFormData({ ...formData, baths: Number(e.target.value) })}
                       className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                      min="1"
+                      min="0"
                     />
                   </div>
 
