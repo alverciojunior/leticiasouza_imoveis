@@ -7,6 +7,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import ImageCarousel from "@/components/ImageCarousel";
 import PropertyMap from "@/components/PropertyMap";
+import ShareButtons from "@/components/ShareButtons";
 
 interface Property {
   id: number;
@@ -263,6 +264,17 @@ export default function PropertyDetail() {
                 <p className="text-muted-foreground text-lg leading-relaxed">
                   {property.description || "Imóvel com excelente localização e acabamento de qualidade."}
                 </p>
+              </div>
+
+              {/* Share Buttons */}
+              <div className="mb-12">
+                <h2 className="font-display text-2xl font-bold text-foreground mb-4">Compartilhar Imóvel</h2>
+                <ShareButtons
+                  propertyTitle={property.title}
+                  propertyPrice={property.price}
+                  propertyUrl={typeof window !== "undefined" ? window.location.href : ""}
+                  phoneNumber="5517997530831"
+                />
               </div>
 
               {/* Map */}
