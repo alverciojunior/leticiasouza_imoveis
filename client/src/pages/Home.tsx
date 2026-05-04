@@ -196,8 +196,8 @@ export default function Home() {
               className="h-12 w-auto"
             />
             <div className="hidden sm:block">
-              <p className="font-display font-bold text-lg text-foreground leading-tight">Letícia Souza</p>
-              <p className="text-xs text-muted-foreground font-medium">Soluções Imobiliárias</p>
+              <p className="font-display font-bold text-lg text-foreground leading-tight">Letícia Souza - CRECI SP 321635</p>
+              <p className="text-xs text-muted-foreground font-medium">Soluções Imobiliárias - CRECI SP 321635</p>
             </div>
           </div>
           <div className="flex items-center gap-6">
@@ -225,7 +225,7 @@ export default function Home() {
                 Encontre seu Imóvel Perfeito
               </h1>
               <p className="text-white/90 text-lg mb-8 max-w-xl">
-                Explore uma seleção curada de propriedades premium em Bady Bassitt e região. Qualidade, sofisticação e localização privilegiada.
+                Explore uma seleção curada de propriedades Bady Bassitt e região. Qualidade, sofisticação e localização privilegiada.
               </p>
             </div>
           </div>
@@ -505,7 +505,7 @@ export default function Home() {
                 className="h-10 w-auto mb-4"
               />
               <p className="text-background/80 text-sm">
-                Sua corretora de confiança para encontrar o imóvel perfeito em Bady Bassitt.
+                Sua corretora de confiança para encontrar o imóvel.
               </p>
             </div>
 
