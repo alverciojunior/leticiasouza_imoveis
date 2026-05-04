@@ -71,3 +71,6 @@
 - [x] Implementar tratamento de erro explícito (falha se logo não existir)
 - [x] Adicionar testes de integração do fluxo completo de upload
 - [x] Validar que imagens watermarked mantêm qualidade JPEG
+
+## Bugs em Correção (Marca d'Água)
+- [x] Remover tarjas pretas acima e abaixo do logo na marca d'água

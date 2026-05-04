@@ -31,17 +31,24 @@ export async function addWatermark(
       throw new Error('Imagem muito pequena para adicionar marca d\'água');
     }
 
-    // Redimensionar logo
+    // Redimensionar logo removendo espaços em branco
+    // Usar trim() para remover bordas transparentes/vazias
     const resizedLogo = await sharp(logoPath)
       .resize(logoWidth, logoWidth, {
-        fit: 'contain',
-        background: { r: 0, g: 0, b: 0, alpha: 0 },
+        fit: 'inside',
+        withoutEnlargement: true,
       })
+      .trim() // Remove espaços em branco/transparentes das bordas
       .toBuffer();
 
-    // Calcular posição central
-    const left = Math.round((metadata.width - logoWidth) / 2);
-    const top = Math.round((metadata.height - logoWidth) / 2);
+    // Obter metadados do logo redimensionado para calcular posição corretamente
+    const logoMetadata = await sharp(resizedLogo).metadata();
+    const actualLogoWidth = logoMetadata.width || logoWidth;
+    const actualLogoHeight = logoMetadata.height || logoWidth;
+
+    // Calcular posição central baseada nas dimensões reais do logo
+    const left = Math.round((metadata.width - actualLogoWidth) / 2);
+    const top = Math.round((metadata.height - actualLogoHeight) / 2);
 
     // Adicionar logo com blend multiply para efeito sutil e semi-transparente
     const watermarkedImage = await sharp(imageBuffer)
