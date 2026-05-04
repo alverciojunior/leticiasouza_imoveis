@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Phone, Mail, MapPin, Bed, Bath, Ruler } from "lucide-react";
 import { useState } from "react";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 /**
  * Design Philosophy: Minimalismo Contemporâneo Premium
@@ -93,6 +94,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* Botão Flutuante WhatsApp */}
+      <WhatsAppButton
+        phoneNumber="5511987654321"
+        message="Olá! Gostaria de saber mais sobre os imóveis disponíveis na Real Estate Broker."
+      />
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-white border-b border-border shadow-sm">
         <div className="container flex items-center justify-between py-4">
