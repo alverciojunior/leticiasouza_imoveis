@@ -60,15 +60,6 @@ export default function ImageCarousel({
     );
   }
 
-  const validImages = images.filter(img => img && img.trim() !== "");
-  if (validImages.length === 0) {
-    return (
-      <div className="w-full h-96 bg-secondary/30 rounded-lg flex items-center justify-center">
-        <p className="text-muted-foreground">Nenhuma imagem válida disponível</p>
-      </div>
-    );
-  }
-
   return (
     <div
       className="relative w-full h-96 bg-black rounded-lg overflow-hidden group"
@@ -78,22 +69,21 @@ export default function ImageCarousel({
       {/* Main Image */}
       <div className="relative w-full h-full">
         <img
-          src={validImages[currentIndex]}
+          src={images[currentIndex]}
           alt={`${title} - Imagem ${currentIndex + 1}`}
           className="w-full h-full object-cover transition-opacity duration-500"
-          crossOrigin="anonymous"
         />
 
         {/* Overlay com informações */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
           <p className="text-white text-sm font-medium">
-            {currentIndex + 1} / {validImages.length}
+            {currentIndex + 1} / {images.length}
           </p>
         </div>
       </div>
 
       {/* Navigation Buttons - Aparecem ao passar o mouse */}
-      {validImages.length > 1 && (
+      {images.length > 1 && (
         <>
           <button
             onClick={goToPrevious}
@@ -114,9 +104,9 @@ export default function ImageCarousel({
       )}
 
       {/* Dot Indicators */}
-      {validImages.length > 1 && (
+      {images.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-          {validImages.map((_, index) => (
+          {images.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
