@@ -22,6 +22,13 @@
       "when": 1777901770861,
       "tag": "0002_blue_the_call",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1777902584173,
+      "tag": "0003_faithful_pet_avengers",
+      "breakpoints": true
     }
   ]
 }

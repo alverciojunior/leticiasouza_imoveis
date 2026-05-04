@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, appointments, InsertAppointment, properties, InsertProperty, propertyImages, InsertPropertyImage } from "../drizzle/schema";
+import { InsertUser, users, appointments, InsertAppointment, properties, InsertProperty, propertyImages, InsertPropertyImage, propertyViews, InsertPropertyView } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -242,5 +242,103 @@ export async function deletePropertyImage(id: number) {
   } catch (error) {
     console.error("[Database] Failed to delete property image:", error);
     throw error;
+  }
+}
+
+
+export async function recordPropertyView(propertyId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot record view: database not available");
+    return;
+  }
+
+  try {
+    await db.insert(propertyViews).values({ propertyId });
+  } catch (error) {
+    console.error("[Database] Failed to record property view:", error);
+  }
+}
+
+export async function getPropertyStats(propertyId: number) {
+  const db = await getDb();
+  if (!db) {
+    return { views: 0, appointments: 0 };
+  }
+
+  try {
+    const viewsResult = await db.select().from(propertyViews).where(eq(propertyViews.propertyId, propertyId));
+    const appointmentsResult = await db.select().from(appointments).where(eq(appointments.propertyId, propertyId));
+    
+    return {
+      views: viewsResult.length,
+      appointments: appointmentsResult.length,
+    };
+  } catch (error) {
+    console.error("[Database] Failed to get property stats:", error);
+    return { views: 0, appointments: 0 };
+  }
+}
+
+export async function getAllPropertiesStats() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  try {
+    const allProperties = await db.select().from(properties);
+    const stats = await Promise.all(
+      allProperties.map(async (prop) => {
+        const { views, appointments: appointmentCount } = await getPropertyStats(prop.id);
+        return {
+          id: prop.id,
+          title: prop.title,
+          views,
+          appointments: appointmentCount,
+        };
+      })
+    );
+    return stats;
+  } catch (error) {
+    console.error("[Database] Failed to get all properties stats:", error);
+    return [];
+  }
+}
+
+export async function getAppointmentStats() {
+  const db = await getDb();
+  if (!db) {
+    return { total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
+  }
+
+  try {
+    const allAppointments = await db.select().from(appointments);
+    
+    return {
+      total: allAppointments.length,
+      pending: allAppointments.filter(a => a.status === "pending").length,
+      confirmed: allAppointments.filter(a => a.status === "confirmed").length,
+      completed: allAppointments.filter(a => a.status === "completed").length,
+      cancelled: allAppointments.filter(a => a.status === "cancelled").length,
+    };
+  } catch (error) {
+    console.error("[Database] Failed to get appointment stats:", error);
+    return { total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
+  }
+}
+
+export async function getTotalViews() {
+  const db = await getDb();
+  if (!db) {
+    return 0;
+  }
+
+  try {
+    const result = await db.select().from(propertyViews);
+    return result.length;
+  } catch (error) {
+    console.error("[Database] Failed to get total views:", error);
+    return 0;
   }
 }

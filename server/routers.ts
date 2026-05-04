@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
-import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage } from "./db";
+import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews } from "./db";
 import { storagePut } from "./storage";
 
 export const appRouter = router({
@@ -228,6 +228,43 @@ export const appRouter = router({
         return [];
       }
     }),
+  }),
+
+  stats: router({
+    overview: publicProcedure.query(async () => {
+      try {
+        const appointmentStats = await getAppointmentStats();
+        const totalViews = await getTotalViews();
+        return {
+          totalViews,
+          ...appointmentStats,
+        };
+      } catch (error) {
+        console.error("Erro ao obter stats gerais:", error);
+        return { totalViews: 0, total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
+      }
+    }),
+
+    properties: publicProcedure.query(async () => {
+      try {
+        return await getAllPropertiesStats();
+      } catch (error) {
+        console.error("Erro ao obter stats de propriedades:", error);
+        return [];
+      }
+    }),
+
+    recordView: publicProcedure
+      .input(z.object({ propertyId: z.number() }))
+      .mutation(async ({ input }) => {
+        try {
+          await recordPropertyView(input.propertyId);
+          return { success: true };
+        } catch (error) {
+          console.error("Erro ao registrar visualizacao:", error);
+          return { success: false };
+        }
+      }),
   }),
 });
 

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trash2, Edit2, Plus, LogOut, X } from "lucide-react";
+import { Trash2, Edit2, Plus, LogOut, X, BarChart3 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
 import ImageUpload from "@/components/ImageUpload";
+import StatsDashboard from "@/components/StatsDashboard";
 
 interface UploadedImage {
   file: File;
@@ -36,6 +37,7 @@ export default function AdminDashboard() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<"properties" | "stats">("properties");
   const [selectedImages, setSelectedImages] = useState<UploadedImage[]>([]);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -248,6 +250,34 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <div className="container py-8">
+        {/* Tabs */}
+        <div className="flex gap-4 mb-8 border-b border-border">
+          <button
+            onClick={() => setActiveTab("properties")}
+            className={`pb-3 px-4 font-semibold transition-colors ${
+              activeTab === "properties"
+                ? "text-accent border-b-2 border-accent"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Imóveis
+          </button>
+          <button
+            onClick={() => setActiveTab("stats")}
+            className={`pb-3 px-4 font-semibold transition-colors flex items-center gap-2 ${
+              activeTab === "stats"
+                ? "text-accent border-b-2 border-accent"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <BarChart3 size={18} />
+            Estatísticas
+          </button>
+        </div>
+
+        {/* Properties Tab */}
+        {activeTab === "properties" && (
+          <>
         {/* Action Bar */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -541,6 +571,13 @@ export default function AdminDashboard() {
               </Card>
             ))}
           </div>
+        )}
+          </>
+        )}
+
+        {/* Stats Tab */}
+        {activeTab === "stats" && (
+          <StatsDashboard />
         )}
       </div>
     </div>

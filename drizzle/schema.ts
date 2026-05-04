@@ -70,3 +70,12 @@ export const propertyImages = mysqlTable("propertyImages", {
 
 export type PropertyImage = typeof propertyImages.$inferSelect;
 export type InsertPropertyImage = typeof propertyImages.$inferInsert;
+
+export const propertyViews = mysqlTable("propertyViews", {
+  id: int("id").autoincrement().primaryKey(),
+  propertyId: int("propertyId").notNull(),
+  viewedAt: timestamp("viewedAt").defaultNow().notNull(),
+});
+
+export type PropertyView = typeof propertyViews.$inferSelect;
+export type InsertPropertyView = typeof propertyViews.$inferInsert;
