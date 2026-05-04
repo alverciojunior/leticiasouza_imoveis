@@ -50,6 +50,8 @@ export default function AdminDashboard() {
     baths: 1,
     area: 100,
     featured: false,
+    latitude: -20.6596,
+    longitude: -48.7669,
   });
 
   const propertiesQuery = trpc.properties.list.useQuery();
@@ -154,6 +156,8 @@ export default function AdminDashboard() {
       baths: 1,
       area: 100,
       featured: false,
+      latitude: -20.6596,
+      longitude: -48.7669,
     });
     setSelectedImages([]);
     setExistingImages([]);
@@ -172,6 +176,8 @@ export default function AdminDashboard() {
       baths: property.baths,
       area: property.area,
       featured: property.featured === 1,
+      latitude: (property as any).latitude || -20.6596,
+      longitude: (property as any).longitude || -48.7669,
     });
     setExistingImages(property.images || []);
     setSelectedImages([]);
@@ -471,6 +477,41 @@ export default function AdminDashboard() {
                     className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
                     placeholder="Descrição do imóvel..."
                   ></textarea>
+                </div>
+
+                {/* Localização (Coordenadas) */}
+                <div className="mt-6 pt-6 border-t border-border">
+                  <h4 className="font-semibold text-foreground mb-4">Localização (Apenas para mapa - Não visível ao cliente)</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-foreground mb-2">
+                        Latitude
+                      </label>
+                      <input
+                        type="number"
+                        step="0.0001"
+                        value={formData.latitude}
+                        onChange={(e) => setFormData({ ...formData, latitude: Number(e.target.value) })}
+                        className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                        placeholder="Ex: -20.6596"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Padrão: Bady Bassitt (-20.6596)</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-foreground mb-2">
+                        Longitude
+                      </label>
+                      <input
+                        type="number"
+                        step="0.0001"
+                        value={formData.longitude}
+                        onChange={(e) => setFormData({ ...formData, longitude: Number(e.target.value) })}
+                        className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                        placeholder="Ex: -48.7669"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Padrão: Bady Bassitt (-48.7669)</p>
+                    </div>
+                  </div>
                 </div>
 
                 <label className="flex items-center gap-2 cursor-pointer">
