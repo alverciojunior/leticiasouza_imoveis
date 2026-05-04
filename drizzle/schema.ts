@@ -51,6 +51,8 @@ export const properties = mysqlTable("properties", {
   beds: int("beds").notNull(),
   baths: int("baths").notNull(),
   area: int("area").notNull(),
+  latitude: varchar("latitude", { length: 20 }),
+  longitude: varchar("longitude", { length: 20 }),
   featured: int("featured").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

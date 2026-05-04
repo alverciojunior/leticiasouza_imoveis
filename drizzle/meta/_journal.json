@@ -29,6 +29,13 @@
       "when": 1777902584173,
       "tag": "0003_faithful_pet_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1777920333732,
+      "tag": "0004_giant_spot",
+      "breakpoints": true
     }
   ]
 }

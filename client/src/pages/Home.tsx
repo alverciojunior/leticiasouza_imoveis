@@ -21,15 +21,18 @@ interface Property {
   title: string;
   location: string;
   price: string;
-  image: string;
+  image?: string;
   images?: string[];
   beds: number;
   baths: number;
   area: number;
   featured?: boolean;
+  description?: string;
+  latitude?: string;
+  longitude?: string;
 }
 
-const properties: Property[] = [
+const defaultProperties: Property[] = [
   {
     id: 1,
     title: "Residência Moderna Luxuosa",
@@ -95,6 +98,21 @@ const properties: Property[] = [
 ];
 
 export default function Home() {
+  const { data: propertiesData = [] } = trpc.properties.getAll.useQuery();
+  const properties: Property[] = propertiesData.map((p: any) => ({
+    id: p.id,
+    title: p.title,
+    location: p.location,
+    price: p.price,
+    beds: p.beds,
+    baths: p.baths,
+    area: p.area,
+    featured: p.featured,
+    description: p.description,
+    latitude: p.latitude,
+    longitude: p.longitude,
+  }));
+
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({
     minPrice: "",

@@ -46,6 +46,22 @@ export const appRouter = router({
   }),
 
   properties: router({
+    getAll: publicProcedure.query(async () => {
+      try {
+        const props = await getProperties();
+        const propsWithImages = await Promise.all(
+          props.map(async (prop) => ({
+            ...prop,
+            images: await getPropertyImages(prop.id),
+          }))
+        );
+        return propsWithImages;
+      } catch (error) {
+        console.error("Erro ao listar propriedades:", error);
+        return [];
+      }
+    }),
+
     list: publicProcedure.query(async () => {
       try {
         const props = await getProperties();
