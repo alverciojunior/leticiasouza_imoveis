@@ -104,6 +104,8 @@ export default function Home() {
     title: p.title,
     location: p.location,
     price: p.price,
+    image: p.images?.[0]?.imageUrl || "",
+    images: p.images?.map((img: any) => img.imageUrl) || [],
     beds: p.beds,
     baths: p.baths,
     area: p.area,
@@ -112,6 +114,7 @@ export default function Home() {
     latitude: p.latitude,
     longitude: p.longitude,
   }));
+
 
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({
