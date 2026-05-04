@@ -43,3 +43,6 @@
 
 ## Correções (Nova)
 - [x] Permitir 0 quartos e banheiros para terrenos
+
+## Bugs Corrigidos (Continuação)
+- [x] Erro de string vazia no atributo src (imóveis sem imagens)

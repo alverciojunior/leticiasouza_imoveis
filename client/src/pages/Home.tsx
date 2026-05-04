@@ -99,12 +99,13 @@ const defaultProperties: Property[] = [
 
 export default function Home() {
   const { data: propertiesData = [] } = trpc.properties.getAll.useQuery();
+  const PLACEHOLDER_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663542972229/Sg4VU74wufmYhMyEUAx8fF/hero-luxury-home-fCQMtSy6nEmPgJoZQTvaNq.webp";
   const properties: Property[] = propertiesData.map((p: any) => ({
     id: p.id,
     title: p.title,
     location: p.location,
     price: p.price,
-    image: p.images?.[0]?.imageUrl || "",
+    image: p.images?.[0]?.imageUrl || PLACEHOLDER_IMAGE,
     images: p.images?.map((img: any) => img.imageUrl) || [],
     beds: p.beds,
     baths: p.baths,
@@ -258,7 +259,7 @@ export default function Home() {
                   ) : (
                     <div className="relative overflow-hidden rounded-lg h-80">
                       <img
-                        src={property.image}
+                        src={property.image || PLACEHOLDER_IMAGE}
                         alt={property.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
@@ -343,7 +344,7 @@ export default function Home() {
               >
                 <div className="relative overflow-hidden h-48">
                   <img
-                    src={property.image}
+                    src={property.image || PLACEHOLDER_IMAGE}
                     alt={property.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
