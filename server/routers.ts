@@ -52,6 +52,8 @@ export const appRouter = router({
         const propsWithImages = await Promise.all(
           props.map(async (prop) => ({
             ...prop,
+            latitude: prop.latitude ? parseFloat(prop.latitude) : null,
+            longitude: prop.longitude ? parseFloat(prop.longitude) : null,
             images: await getPropertyImages(prop.id),
           }))
         );
@@ -68,6 +70,8 @@ export const appRouter = router({
         const propsWithImages = await Promise.all(
           props.map(async (prop) => ({
             ...prop,
+            latitude: prop.latitude ? parseFloat(prop.latitude) : null,
+            longitude: prop.longitude ? parseFloat(prop.longitude) : null,
             images: await getPropertyImages(prop.id),
           }))
         );
@@ -85,7 +89,12 @@ export const appRouter = router({
           const prop = await getPropertyById(input.id);
           if (!prop) return null;
           const images = await getPropertyImages(input.id);
-          return { ...prop, images };
+          return {
+            ...prop,
+            latitude: prop.latitude ? parseFloat(prop.latitude) : null,
+            longitude: prop.longitude ? parseFloat(prop.longitude) : null,
+            images,
+          };
         } catch (error) {
           console.error("Erro ao buscar propriedade:", error);
           return null;
@@ -103,6 +112,8 @@ export const appRouter = router({
           baths: z.number().min(1),
           area: z.number().min(1),
           featured: z.boolean().default(false),
+          latitude: z.number().optional(),
+          longitude: z.number().optional(),
         })
       )
       .mutation(async ({ input }) => {
@@ -110,6 +121,8 @@ export const appRouter = router({
           await createProperty({
             ...input,
             featured: input.featured ? 1 : 0,
+            latitude: input.latitude?.toString(),
+            longitude: input.longitude?.toString(),
           });
           return { success: true };
         } catch (error) {
@@ -130,6 +143,8 @@ export const appRouter = router({
           baths: z.number().optional(),
           area: z.number().optional(),
           featured: z.boolean().optional(),
+          latitude: z.number().optional(),
+          longitude: z.number().optional(),
         })
       )
       .mutation(async ({ input }) => {
@@ -140,6 +155,8 @@ export const appRouter = router({
             if (value !== undefined) {
               if (key === "featured") {
                 updateData[key] = value ? 1 : 0;
+              } else if (key === "latitude" || key === "longitude") {
+                updateData[key] = value?.toString();
               } else {
                 updateData[key] = value;
               }

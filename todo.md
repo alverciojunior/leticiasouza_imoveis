@@ -14,9 +14,9 @@
 - [x] Campos de latitude e longitude no formulário de admin
 
 ## Próximas Tarefas
-- [ ] Testar criação de imóvel com coordenadas personalizadas
-- [ ] Testar edição de imóvel com atualização de coordenadas
-- [ ] Verificar se o mapa usa corretamente as coordenadas do banco
+- [x] Testar criação de imóvel com coordenadas personalizadas
+- [x] Testar edição de imóvel com atualização de coordenadas
+- [x] Verificar se o mapa usa corretamente as coordenadas do banco
 - [ ] (Opcional) Integrar seletor de mapa interativo no admin
 - [ ] (Opcional) Validar coordenadas no backend
 - [ ] (Opcional) Adicionar geocodificação automática por endereço
