@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trash2, Edit2, Plus, LogOut, X, BarChart3, MapPin } from "lucide-react";
+import { Trash2, Edit2, Plus, LogOut, X, BarChart3, MapPin, Check } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useAdminAuth } from "@/_core/hooks/useAdminAuth";
@@ -139,6 +139,22 @@ export default function AdminDashboard() {
     onError: (error) => {
       toast.error("Erro ao remover imagens", {
         description: error.message || "Não foi possível remover as imagens.",
+        duration: 5000,
+      });
+    },
+  });
+
+  const markAsSoldMutation = trpc.properties.markAsSold.useMutation({
+    onSuccess: () => {
+      toast.success("Propriedade marcada como vendida!", {
+        description: "O imóvel agora aparecerá como vendido.",
+        duration: 3000,
+      });
+      propertiesQuery.refetch();
+    },
+    onError: (error) => {
+      toast.error("Erro ao marcar como vendido", {
+        description: error.message || "Não foi possível atualizar o status.",
         duration: 5000,
       });
     },
@@ -784,11 +800,11 @@ export default function AdminDashboard() {
                     <span>{property.area}m²</span>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1 flex items-center justify-center gap-2"
+                      className="flex-1 min-w-[80px] flex items-center justify-center gap-2"
                       onClick={() => handleEditClick(property)}
                     >
                       <Edit2 size={16} />
@@ -797,7 +813,7 @@ export default function AdminDashboard() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1 flex items-center justify-center gap-2 text-red-600 hover:text-red-700"
+                      className="flex-1 min-w-[80px] flex items-center justify-center gap-2 text-red-600 hover:text-red-700"
                       onClick={() => handleDelete(property.id)}
                     >
                       <Trash2 size={16} />
@@ -806,7 +822,7 @@ export default function AdminDashboard() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1 flex items-center justify-center gap-2 text-orange-600 hover:text-orange-700"
+                      className="flex-1 min-w-[100px] flex items-center justify-center gap-2 text-orange-600 hover:text-orange-700"
                       onClick={() => {
                         if (confirm("Tem certeza que deseja remover todas as imagens?")) {
                           deleteAllImagesMutation.mutate({ propertyId: property.id });
@@ -815,6 +831,19 @@ export default function AdminDashboard() {
                     >
                       <Trash2 size={16} />
                       Remover Fotos
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 min-w-[80px] flex items-center justify-center gap-2 text-green-600 hover:text-green-700"
+                      onClick={() => {
+                        if (confirm("Marcar como vendido?")) {
+                          markAsSoldMutation.mutate({ propertyId: property.id, sold: true });
+                        }
+                      }}
+                    >
+                      <Check size={16} />
+                      Vendido
                     </Button>
                   </div>
                 </div>

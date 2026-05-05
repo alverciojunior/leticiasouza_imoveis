@@ -382,8 +382,17 @@ export default function Home() {
                   <img
                     src={property.image || PLACEHOLDER_IMAGE}
                     alt={property.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                      property.sold ? 'grayscale' : ''
+                    }`}
                   />
+                  {property.sold && (
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <div className="transform -rotate-45 text-white font-bold text-4xl opacity-80 drop-shadow-lg">
+                        VENDIDO
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="p-6">
                   <div className="mb-3">
