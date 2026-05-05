@@ -662,15 +662,6 @@ export default function AdminDashboard() {
                 <div className="space-y-4 pt-6 border-t border-border">
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold text-foreground">Fotos Atuais</h4>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteAllImages()}
-                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors flex items-center gap-2"
-                      title="Remover todas as imagens"
-                    >
-                      <Trash2 size={16} />
-                      Remover Todas
-                    </button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {existingImages.map((image, index) => (
@@ -811,6 +802,19 @@ export default function AdminDashboard() {
                     >
                       <Trash2 size={16} />
                       Deletar
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 flex items-center justify-center gap-2 text-orange-600 hover:text-orange-700"
+                      onClick={() => {
+                        if (confirm("Tem certeza que deseja remover todas as imagens?")) {
+                          deleteAllImagesMutation.mutate({ propertyId: property.id });
+                        }
+                      }}
+                    >
+                      <Trash2 size={16} />
+                      Remover Fotos
+                    </Button>
                     </Button>
                   </div>
                 </div>

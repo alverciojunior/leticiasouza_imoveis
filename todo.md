@@ -91,5 +91,5 @@
 - [x] Desabilitar clique em propriedades marcadas como vendidas
 - [x] Adicionar campo `sold` na tabela de propriedades
 - [x] Implementar modal de maximização de imagem ao clicar
-- [ ] Adicionar botão "Remover todas as fotos" na prévia do imóvel (admin)
-- [ ] Remover botão "Remover Fotos" da seção de edição
+- [x] Adicionar botão "Remover todas as fotos" na prévia do imóvel (admin)
+- [x] Remover botão "Remover Fotos" da seção de edição
