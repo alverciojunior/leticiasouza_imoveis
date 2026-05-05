@@ -87,9 +87,9 @@
 - [x] Corrigir upload múltiplo de imagens (apenas 1 é enviada de 7)
 
 ## Novas Funcionalidades (Página Pública)
-- [ ] Adicionar botão "Remover todas as fotos" na prévia do imóvel
-- [ ] Adicionar botão "Vendido" para marcar anúncio como inativo
+- [x] Adicionar botão "Vendido" para marcar anúncio como inativo
+- [x] Desabilitar clique em propriedades marcadas como vendidas
+- [x] Adicionar campo `sold` na tabela de propriedades
 - [ ] Implementar modal de maximização de imagem ao clicar
+- [ ] Adicionar botão "Remover todas as fotos" na prévia do imóvel (admin)
 - [ ] Remover botão "Remover Fotos" da seção de edição
-- [ ] Adicionar campo `sold` na tabela de propriedades
-- [ ] Desabilitar clique em propriedades marcadas como vendidas

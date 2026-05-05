@@ -31,6 +31,7 @@ interface Property {
   latitude?: string;
   longitude?: string;
   type?: string;
+  sold?: number;
 }
 
 const defaultProperties: Property[] = [
@@ -116,6 +117,7 @@ export default function Home() {
     latitude: p.latitude,
     longitude: p.longitude,
     type: p.type || "Casas",
+    sold: p.sold,
   }));
 
 
@@ -367,11 +369,14 @@ export default function Home() {
               .map((property) => (
               <a
                 key={property.id}
-                href={`/property/${property.id}`}
-                className="block"
+                href={property.sold ? '#' : `/property/${property.id}`}
+                onClick={(e) => property.sold && e.preventDefault()}
+                className={`block ${property.sold ? 'opacity-60 pointer-events-none' : ''}`}
               >
               <Card
-                className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+                className={`overflow-hidden transition-shadow duration-300 group ${
+                  property.sold ? 'cursor-not-allowed' : 'hover:shadow-lg cursor-pointer'
+                }`}
               >
                 <div className="relative overflow-hidden h-48">
                   <img
@@ -405,6 +410,13 @@ export default function Home() {
                       <p className="text-xs text-muted-foreground">{property.area}m²</p>
                     </div>
                   </div>
+                </div>
+                <div className="p-4 border-t border-border flex gap-2 flex-wrap">
+                  {property.sold ? (
+                    <div className="w-full bg-red-50 text-red-700 px-3 py-2 rounded text-sm font-semibold text-center">
+                      VENDIDO
+                    </div>
+                  ) : null}
                 </div>
               </Card>
               </a>
