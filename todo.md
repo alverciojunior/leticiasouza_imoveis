@@ -82,3 +82,6 @@
 - [x] Testar funcionalidade no Admin Dashboard
 - [x] Proteger deleteAllImages com adminProcedure
 - [x] Adicionar testes automatizados para deleteAllImages
+
+## Bugs em Correção (Upload Múltiplo)
+- [x] Corrigir upload múltiplo de imagens (apenas 1 é enviada de 7)

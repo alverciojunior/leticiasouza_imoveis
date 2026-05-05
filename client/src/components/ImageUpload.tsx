@@ -25,29 +25,34 @@ export default function ImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = (files: FileList) => {
-    const newImages: UploadedImage[] = [];
-
-    Array.from(files).forEach((file) => {
+    const validFiles = Array.from(files).filter((file) => {
       // Validar tipo de arquivo
       if (!file.type.startsWith("image/")) {
         toast.error(`${file.name} não é uma imagem válida`);
-        return;
+        return false;
       }
 
       // Validar tamanho
       const sizeMB = file.size / (1024 * 1024);
       if (sizeMB > maxSizeMB) {
         toast.error(`${file.name} excede o tamanho máximo de ${maxSizeMB}MB`);
-        return;
+        return false;
       }
 
-      // Validar limite de imagens
-      if (images.length + newImages.length >= maxImages) {
-        toast.error(`Máximo de ${maxImages} imagens permitidas`);
-        return;
-      }
+      return true;
+    });
 
-      // Criar preview
+    // Validar limite total de imagens
+    if (images.length + validFiles.length > maxImages) {
+      toast.error(`Máximo de ${maxImages} imagens permitidas`);
+      return;
+    }
+
+    // Processar todas as imagens de uma vez
+    let loadedCount = 0;
+    const newImages: UploadedImage[] = [];
+
+    validFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const uploadedImage: UploadedImage = {
@@ -55,8 +60,20 @@ export default function ImageUpload({
           preview: e.target?.result as string,
           id: Math.random().toString(36).substr(2, 9),
         };
-        setImages((prev) => [...prev, uploadedImage]);
-        onImagesSelected([...images, uploadedImage]);
+        newImages.push(uploadedImage);
+        loadedCount++;
+
+        // Quando todas as imagens foram carregadas, atualizar estado uma única vez
+        if (loadedCount === validFiles.length) {
+          setImages((prev) => {
+            const updated = [...prev, ...newImages];
+            onImagesSelected(updated);
+            return updated;
+          });
+        }
+      };
+      reader.onerror = () => {
+        toast.error(`Erro ao ler arquivo ${file.name}`);
       };
       reader.readAsDataURL(file);
     });
