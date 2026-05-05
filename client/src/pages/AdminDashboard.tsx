@@ -802,6 +802,7 @@ export default function AdminDashboard() {
                     >
                       <Trash2 size={16} />
                       Deletar
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
@@ -814,7 +815,6 @@ export default function AdminDashboard() {
                     >
                       <Trash2 size={16} />
                       Remover Fotos
-                    </Button>
                     </Button>
                   </div>
                 </div>
