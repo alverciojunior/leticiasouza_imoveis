@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
-import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, deleteAllPropertyImages, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews, getAdminByEmail, createAdminUser, updateAdminPassword, getAllAdminUsers } from "./db";
+import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, deleteAllPropertyImages, markPropertyAsSold, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews, getAdminByEmail, createAdminUser, updateAdminPassword, getAllAdminUsers } from "./db";
 import { hashPassword, verifyPassword } from "./_core/password";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
@@ -288,6 +288,18 @@ export const appRouter = router({
         } catch (error) {
           console.error("Erro ao deletar todas as imagens:", error);
           throw new Error("Erro ao deletar todas as imagens");
+        }
+      }),
+    markAsSold: adminProcedure
+      .input(z.object({ propertyId: z.number(), sold: z.boolean() }))
+      .mutation(async ({ input }) => {
+        try {
+          await markPropertyAsSold(input.propertyId, input.sold);
+          console.log(`[markAsSold] Propriedade ${input.propertyId} marcada como ${input.sold ? "vendida" : "disponível"}`);
+          return { success: true };
+        } catch (error) {
+          console.error("Erro ao marcar propriedade como vendida:", error);
+          throw new Error("Erro ao marcar propriedade como vendida");
         }
       }),
     geocode: publicProcedure

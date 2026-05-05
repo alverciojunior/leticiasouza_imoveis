@@ -55,6 +55,7 @@ export const properties = mysqlTable("properties", {
   latitude: varchar("latitude", { length: 20 }),
   longitude: varchar("longitude", { length: 20 }),
   featured: int("featured").default(0).notNull(),
+  sold: int("sold").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

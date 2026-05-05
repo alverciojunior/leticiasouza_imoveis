@@ -262,6 +262,22 @@ export async function deleteAllPropertyImages(propertyId: number) {
 }
 
 
+export async function markPropertyAsSold(propertyId: number, sold: boolean) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.update(properties).set({ sold: sold ? 1 : 0 }).where(eq(properties.id, propertyId));
+    console.log(`[Database] Property ${propertyId} marked as ${sold ? 'sold' : 'available'}`);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to mark property as sold:", error);
+    throw error;
+  }
+}
+
 export async function recordPropertyView(propertyId: number) {
   const db = await getDb();
   if (!db) {

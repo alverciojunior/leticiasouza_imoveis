@@ -1,0 +1,1 @@
+ALTER TABLE `properties` ADD `sold` int DEFAULT 0 NOT NULL;

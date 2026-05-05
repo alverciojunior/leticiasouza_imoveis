@@ -1,0 +1,1 @@
+ALTER TABLE properties ADD COLUMN sold int NOT NULL DEFAULT 0;

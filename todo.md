@@ -85,3 +85,11 @@
 
 ## Bugs em Correção (Upload Múltiplo)
 - [x] Corrigir upload múltiplo de imagens (apenas 1 é enviada de 7)
+
+## Novas Funcionalidades (Página Pública)
+- [ ] Adicionar botão "Remover todas as fotos" na prévia do imóvel
+- [ ] Adicionar botão "Vendido" para marcar anúncio como inativo
+- [ ] Implementar modal de maximização de imagem ao clicar
+- [ ] Remover botão "Remover Fotos" da seção de edição
+- [ ] Adicionar campo `sold` na tabela de propriedades
+- [ ] Desabilitar clique em propriedades marcadas como vendidas
