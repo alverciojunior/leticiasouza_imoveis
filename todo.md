@@ -90,6 +90,6 @@
 - [x] Adicionar botão "Vendido" para marcar anúncio como inativo
 - [x] Desabilitar clique em propriedades marcadas como vendidas
 - [x] Adicionar campo `sold` na tabela de propriedades
-- [ ] Implementar modal de maximização de imagem ao clicar
+- [x] Implementar modal de maximização de imagem ao clicar
 - [ ] Adicionar botão "Remover todas as fotos" na prévia do imóvel (admin)
 - [ ] Remover botão "Remover Fotos" da seção de edição
