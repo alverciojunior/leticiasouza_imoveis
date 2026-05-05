@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, adminProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
 import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, deleteAllPropertyImages, markPropertyAsSold, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews, getAdminByEmail, createAdminUser, updateAdminPassword, getAllAdminUsers } from "./db";
@@ -278,7 +278,7 @@ export const appRouter = router({
         }
       }),
 
-    deleteAllImages: adminProcedure
+    deleteAllImages: protectedProcedure
       .input(z.object({ propertyId: z.number() }))
       .mutation(async ({ input }) => {
         try {
