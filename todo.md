@@ -85,8 +85,3 @@
 
 ## Bugs em Correção (Upload Múltiplo)
 - [x] Corrigir upload múltiplo de imagens (apenas 1 é enviada de 7)
-
-## Bugs em Produção (Upload Múltiplo)
-- [x] Apenas 2 de 7 imagens processadas em produção (timeout/limite)
-- [x] Implementar upload sequencial com delay entre requisições
-- [x] Adicionar tratamento de erro com feedback ao usuário
