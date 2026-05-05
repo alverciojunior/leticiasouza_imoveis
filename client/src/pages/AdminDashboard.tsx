@@ -30,6 +30,7 @@ interface Property {
   baths: number;
   area: number;
   featured: number;
+  sold?: number;
   description?: string | null;
   images?: ExistingImage[];
 }
@@ -819,6 +820,9 @@ export default function AdminDashboard() {
                       <Trash2 size={16} />
                       Deletar
                     </Button>
+                  </div>
+
+                  <div className="flex gap-2 flex-wrap mt-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -832,19 +836,35 @@ export default function AdminDashboard() {
                       <Trash2 size={16} />
                       Remover Fotos
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 min-w-[80px] flex items-center justify-center gap-2 text-green-600 hover:text-green-700"
-                      onClick={() => {
-                        if (confirm("Marcar como vendido?")) {
-                          markAsSoldMutation.mutate({ propertyId: property.id, sold: true });
-                        }
-                      }}
-                    >
-                      <Check size={16} />
-                      Vendido
-                    </Button>
+                    {property.sold ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 min-w-[140px] flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700"
+                        onClick={() => {
+                          if (confirm("Marcar como disponivel para venda?")) {
+                            markAsSoldMutation.mutate({ propertyId: property.id, sold: false });
+                          }
+                        }}
+                      >
+                        <Check size={16} />
+                        Disponivel para Venda
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 min-w-[80px] flex items-center justify-center gap-2 text-green-600 hover:text-green-700"
+                        onClick={() => {
+                          if (confirm("Marcar como vendido?")) {
+                            markAsSoldMutation.mutate({ propertyId: property.id, sold: true });
+                          }
+                        }}
+                      >
+                        <Check size={16} />
+                        Vendido
+                      </Button>
+                    )}
                   </div>
                 </div>
               </Card>
