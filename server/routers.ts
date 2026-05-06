@@ -416,49 +416,14 @@ export const appRouter = router({
   }),
 
   admin: router({
-    me: publicProcedure.query(async ({ ctx }) => {
-      try {
-        const adminIdCookie = ctx.req.cookies[ADMIN_COOKIE_NAME];
-        if (!adminIdCookie) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Não autenticado",
-          });
-        }
-
-        const adminId = parseInt(adminIdCookie, 10);
-        if (isNaN(adminId)) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Sessão inválida",
-          });
-        }
-
-        // Get admin from database using the ID
-        const admins = await getAllAdminUsers();
-        const admin = admins.find((a) => a.id === adminId);
-
-        if (!admin) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Usuário não encontrado",
-          });
-        }
-
-        return {
-          id: admin.id,
-          email: admin.email,
-          name: admin.name,
-        };
-      } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Erro ao verificar autenticação",
-        });
-      }
+    me: protectedProcedure.query(({ ctx }) => {
+      // Use ctx.user que já está autenticado via OAuth
+      return {
+        id: ctx.user.id,
+        email: ctx.user.email,
+        name: ctx.user.name,
+        role: ctx.user.role,
+      };
     }),
 
     login: publicProcedure
