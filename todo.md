@@ -146,3 +146,11 @@
   - Tipo: Apartamentos
   - Status: Ativo (não vendido)
   - Nota: Imagens precisam ser re-adicionadas via interface
+
+
+## Correção de Bugs (Sessão Atual)
+- [x] Corrigir erro "Cannot update a component (AdminDashboard) while rendering a different component (ImageUpload)"
+  - Adicionado useRef(true) para rastrear se componente está montado
+  - Adicionado useEffect para cleanup ao desmontar
+  - Verificado isMountedRef.current antes de chamar setState
+  - Todos os 63 testes passando

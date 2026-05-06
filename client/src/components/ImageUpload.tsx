@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload, X, Image as ImageIcon, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -26,6 +26,19 @@ export default function ImageUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMountedRef = useRef(true);
+
+  // Sincronizar imagens com o pai via useEffect (não durante render)
+  useEffect(() => {
+    onImagesSelected(images);
+  }, [images, onImagesSelected]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const compressImage = async (file: File): Promise<File> => {
     try {
@@ -47,6 +60,8 @@ export default function ImageUpload({
   };
 
   const handleFiles = async (files: FileList) => {
+    if (!isMountedRef.current) return;
+    
     setIsCompressing(true);
     try {
       let validFiles = Array.from(files).filter((file) => {
@@ -100,11 +115,10 @@ export default function ImageUpload({
 
           // Quando todas as imagens foram carregadas, atualizar estado uma única vez
           if (loadedCount === validFiles.length) {
-            setImages((prev) => {
-              const updated = [...prev, ...newImages];
-              onImagesSelected(updated);
-              return updated;
-            });
+            if (isMountedRef.current) {
+              // Atualizar estado sem chamar callback aqui
+              setImages((prev) => [...prev, ...newImages]);
+            }
           }
         };
         reader.onerror = () => {
@@ -116,7 +130,9 @@ export default function ImageUpload({
       console.error("Erro ao processar imagens:", error);
       toast.error("Erro ao processar imagens. Tente novamente.");
     } finally {
-      setIsCompressing(false);
+      if (isMountedRef.current) {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -145,9 +161,7 @@ export default function ImageUpload({
   };
 
   const removeImage = (id: string) => {
-    const updatedImages = images.filter((img) => img.id !== id);
-    setImages(updatedImages);
-    onImagesSelected(updatedImages);
+    setImages((prev) => prev.filter((img) => img.id !== id));
   };
 
   return (
