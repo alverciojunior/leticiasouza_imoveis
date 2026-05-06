@@ -137,3 +137,12 @@
   - Feedback visual "Comprimindo..." durante processo
   - Valida tamanho após compressão
   - Todos os 63 testes passando
+
+
+## Recuperação de Dados (Sessão Atual)
+- [x] Recuperar anúncio "3 DORMITÓRIOS COM SUÍTE E CLOSET" (Bady Bassitt - SP, R$785.000)
+  - Anúncio recuperado com ID: 540015
+  - Dados: 3 quartos, 2 banheiros, 140m²
+  - Tipo: Apartamentos
+  - Status: Ativo (não vendido)
+  - Nota: Imagens precisam ser re-adicionadas via interface
