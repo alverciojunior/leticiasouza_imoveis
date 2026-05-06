@@ -1,6 +1,7 @@
 import { useState } from "react";
+import * as React from "react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { X, GripVertical } from "lucide-react";
@@ -78,6 +79,11 @@ export default function DraggableImageGrid({
 }: DraggableImageGridProps) {
   const [items, setItems] = useState<ExistingImage[]>(images);
 
+  // Atualizar items quando images prop muda
+  React.useEffect(() => {
+    setItems(images);
+  }, [images]);
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -106,7 +112,7 @@ export default function DraggableImageGrid({
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext items={items.map((item) => item.id)} strategy={rectSortingStrategy}>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {items.map((image, index) => (
             <SortableImage

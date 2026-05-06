@@ -106,6 +106,8 @@
   - Criado componente DraggableImageGrid com suporte a drag-and-drop
   - Integrado em AdminDashboard com mutation para reordenar
   - Botões de navegação não disparam reordenação
+  - CORRIGIDO: Mudado de verticalListSortingStrategy para rectSortingStrategy para grids
+  - CORRIGIDO: Adicionado useEffect para sincronizar estado com props
 - [x] Corrigir UX da galeria: apenas nome/centro abre anúncio, não a imagem inteira
   - Refatorado cards featured para remover link envolvendo toda a imagem
   - Refatorado cards regulares para remover link envolvendo toda a imagem
