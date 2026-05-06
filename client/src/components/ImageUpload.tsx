@@ -1,12 +1,14 @@
 import { useState, useRef } from "react";
-import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import imageCompression from "browser-image-compression";
 
 interface UploadedImage {
   file: File;
   preview: string;
   id: string;
+  compressedSize?: number;
 }
 
 interface ImageUploadProps {
@@ -22,61 +24,100 @@ export default function ImageUpload({
 }: ImageUploadProps) {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFiles = (files: FileList) => {
-    const validFiles = Array.from(files).filter((file) => {
-      // Validar tipo de arquivo
-      if (!file.type.startsWith("image/")) {
-        toast.error(`${file.name} não é uma imagem válida`);
-        return false;
-      }
-
-      // Validar tamanho
-      const sizeMB = file.size / (1024 * 1024);
-      if (sizeMB > maxSizeMB) {
-        toast.error(`${file.name} excede o tamanho máximo de ${maxSizeMB}MB`);
-        return false;
-      }
-
-      return true;
-    });
-
-    // Validar limite total de imagens
-    if (images.length + validFiles.length > maxImages) {
-      toast.error(`Máximo de ${maxImages} imagens permitidas`);
-      return;
+  const compressImage = async (file: File): Promise<File> => {
+    try {
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+        quality: 0.8,
+      };
+      const compressedFile = await imageCompression(file, options);
+      const originalSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      const compressedSizeMB = (compressedFile.size / (1024 * 1024)).toFixed(2);
+      console.log(`[Compressão] ${file.name}: ${originalSizeMB}MB → ${compressedSizeMB}MB`);
+      return compressedFile;
+    } catch (error) {
+      console.error("Erro ao comprimir imagem:", error);
+      return file;
     }
+  };
 
-    // Processar todas as imagens de uma vez
-    let loadedCount = 0;
-    const newImages: UploadedImage[] = [];
-
-    validFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const uploadedImage: UploadedImage = {
-          file,
-          preview: e.target?.result as string,
-          id: Math.random().toString(36).substr(2, 9),
-        };
-        newImages.push(uploadedImage);
-        loadedCount++;
-
-        // Quando todas as imagens foram carregadas, atualizar estado uma única vez
-        if (loadedCount === validFiles.length) {
-          setImages((prev) => {
-            const updated = [...prev, ...newImages];
-            onImagesSelected(updated);
-            return updated;
-          });
+  const handleFiles = async (files: FileList) => {
+    setIsCompressing(true);
+    try {
+      let validFiles = Array.from(files).filter((file) => {
+        // Validar tipo de arquivo
+        if (!file.type.startsWith("image/")) {
+          toast.error(`${file.name} não é uma imagem válida`);
+          return false;
         }
-      };
-      reader.onerror = () => {
-        toast.error(`Erro ao ler arquivo ${file.name}`);
-      };
-      reader.readAsDataURL(file);
-    });
+        return true;
+      });
+
+      // Comprimir imagens
+      const compressedFiles: File[] = [];
+      for (const file of validFiles) {
+        const compressed = await compressImage(file);
+        compressedFiles.push(compressed);
+      }
+      validFiles = compressedFiles;
+
+      // Validar tamanho após compressão
+      validFiles = validFiles.filter((file) => {
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > maxSizeMB) {
+          toast.error(`${file.name} ainda excede o tamanho máximo de ${maxSizeMB}MB após compressão`);
+          return false;
+        }
+        return true;
+      });
+
+      // Validar limite total de imagens
+      if (images.length + validFiles.length > maxImages) {
+        toast.error(`Máximo de ${maxImages} imagens permitidas`);
+        return;
+      }
+
+      // Processar todas as imagens de uma vez
+      let loadedCount = 0;
+      const newImages: UploadedImage[] = [];
+
+      validFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const uploadedImage: UploadedImage = {
+            file,
+            preview: e.target?.result as string,
+            id: Math.random().toString(36).substr(2, 9),
+            compressedSize: file.size,
+          };
+          newImages.push(uploadedImage);
+          loadedCount++;
+
+          // Quando todas as imagens foram carregadas, atualizar estado uma única vez
+          if (loadedCount === validFiles.length) {
+            setImages((prev) => {
+              const updated = [...prev, ...newImages];
+              onImagesSelected(updated);
+              return updated;
+            });
+          }
+        };
+        reader.onerror = () => {
+          toast.error(`Erro ao ler arquivo ${file.name}`);
+        };
+        reader.readAsDataURL(file);
+      });
+    } catch (error) {
+      console.error("Erro ao processar imagens:", error);
+      toast.error("Erro ao processar imagens. Tente novamente.");
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -84,7 +125,8 @@ export default function ImageUpload({
     setIsDragging(true);
   };
 
-  const handleDragLeave = () => {
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
     setIsDragging(false);
   };
 
@@ -108,32 +150,17 @@ export default function ImageUpload({
     onImagesSelected(updatedImages);
   };
 
-  const moveImage = (id: string, direction: "up" | "down") => {
-    const index = images.findIndex((img) => img.id === id);
-    if (
-      (direction === "up" && index === 0) ||
-      (direction === "down" && index === images.length - 1)
-    ) {
-      return;
-    }
-
-    const newImages = [...images];
-    const newIndex = direction === "up" ? index - 1 : index + 1;
-    [newImages[index], newImages[newIndex]] = [newImages[newIndex], newImages[index]];
-    setImages(newImages);
-    onImagesSelected(newImages);
-  };
-
   return (
     <div className="space-y-4">
+      {/* Área de upload */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
           isDragging
             ? "border-accent bg-accent/10"
-            : "border-border bg-secondary/30 hover:border-accent/50"
+            : "border-border hover:border-accent/50"
         }`}
       >
         <input
@@ -158,9 +185,17 @@ export default function ImageUpload({
           <Button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="bg-accent hover:bg-accent/90 text-accent-foreground mt-2"
+            disabled={isCompressing}
+            className="bg-accent hover:bg-accent/90 text-accent-foreground mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Selecionar Imagens
+            {isCompressing ? (
+              <>
+                <Loader size={16} className="animate-spin mr-2" />
+                Comprimindo...
+              </>
+            ) : (
+              "Selecionar Imagens"
+            )}
           </Button>
         </div>
       </div>
@@ -183,6 +218,11 @@ export default function ImageUpload({
                   className="w-full h-32 object-cover"
                 />
 
+                {/* Tamanho do arquivo */}
+                <div className="absolute bottom-2 left-2 bg-background/80 px-2 py-1 rounded text-xs text-muted-foreground">
+                  {(image.compressedSize! / (1024 * 1024)).toFixed(2)}MB
+                </div>
+
                 {/* Overlay com ações */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
@@ -195,28 +235,8 @@ export default function ImageUpload({
                 </div>
 
                 {/* Número da imagem */}
-                <div className="absolute top-2 left-2 bg-accent text-accent-foreground px-2 py-1 rounded text-xs font-semibold">
+                <div className="absolute top-2 right-2 bg-accent text-accent-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">
                   {index + 1}
-                </div>
-
-                {/* Controles de ordem */}
-                <div className="absolute bottom-2 right-2 flex gap-1">
-                  <button
-                    onClick={() => moveImage(image.id, "up")}
-                    disabled={index === 0}
-                    className="p-1 bg-background/80 hover:bg-background rounded text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="Mover para cima"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    onClick={() => moveImage(image.id, "down")}
-                    disabled={index === images.length - 1}
-                    className="p-1 bg-background/80 hover:bg-background rounded text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="Mover para baixo"
-                  >
-                    ↓
-                  </button>
                 </div>
               </div>
             ))}

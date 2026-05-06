@@ -127,3 +127,13 @@
   - Adicionada mensagem de aviso quando limite é atingido
   - Criados 3 testes automatizados para validar limite
   - Todos os 63 testes passando
+
+## Otimizações de Imagem (Sessão Atual)
+- [x] Implementar compressão automática de imagens no frontend
+  - Instalada biblioteca browser-image-compression
+  - Compressão automática com qualidade 0.8 e tamanho máximo 1MB
+  - Redimensiona para máximo 1920px de largura/altura
+  - Exibe tamanho comprimido no preview (em MB)
+  - Feedback visual "Comprimindo..." durante processo
+  - Valida tamanho após compressão
+  - Todos os 63 testes passando
