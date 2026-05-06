@@ -202,6 +202,12 @@ export const appRouter = router({
         try {
           console.log('[uploadImage] Iniciando upload:', { propertyId: input.propertyId, fileName: input.fileName, dataLength: input.imageData.length });
           
+          // Validar limite de 20 imagens por propriedade
+          const existingImages = await getPropertyImages(input.propertyId);
+          if (existingImages.length >= 20) {
+            throw new Error('Limite de 20 imagens por propriedade atingido');
+          }
+          
           let base64Data = input.imageData;
           if (input.imageData.includes(',')) {
             base64Data = input.imageData.split(',')[1];

@@ -17,7 +17,7 @@ interface ImageUploadProps {
 
 export default function ImageUpload({
   onImagesSelected,
-  maxImages = 10,
+  maxImages = 20,
   maxSizeMB = 10,
 }: ImageUploadProps) {
   const [images, setImages] = useState<UploadedImage[]>([]);

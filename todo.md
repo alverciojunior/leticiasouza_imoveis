@@ -117,3 +117,13 @@
   - Criado script cleanup-test-data.mjs para remover propriedades de teste
   - Removidos dados hardcoded de PropertyDetail.tsx
   - Agora carrega dados apenas do backend via tRPC
+
+## Melhorias Adicionais (Sessão Atual)
+- [x] Aumentar limite de upload de fotos de 10 para 20
+  - Atualizado maxImages em AdminDashboard de 10 para 20
+  - Atualizado padrão em ImageUpload de 10 para 20
+  - Adicionada validação server-side no uploadImage para bloquear >20 imagens
+  - Adicionado cálculo de limite restante no frontend (20 - imagens existentes)
+  - Adicionada mensagem de aviso quando limite é atingido
+  - Criados 3 testes automatizados para validar limite
+  - Todos os 63 testes passando

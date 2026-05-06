@@ -712,9 +712,14 @@ export default function AdminDashboard() {
                 <h4 className="font-semibold text-foreground">
                   {editingId ? "Adicionar Novas Fotos" : "Fotos do Imóvel"}
                 </h4>
+                {editingId && existingImages.length >= 20 && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                    Limite de 20 fotos atingido. Remova algumas fotos para adicionar novas.
+                  </div>
+                )}
                 <ImageUpload
                   onImagesSelected={setSelectedImages}
-                  maxImages={10}
+                  maxImages={editingId ? Math.max(0, 20 - existingImages.length) : 20}
                   maxSizeMB={5}
                 />
               </div>
