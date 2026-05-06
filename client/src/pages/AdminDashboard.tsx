@@ -296,16 +296,16 @@ export default function AdminDashboard() {
         });
       } else {
         // Criar nova propriedade
-        await createPropertyMutation.mutateAsync({
+        const createResult = await createPropertyMutation.mutateAsync({
           ...formData,
           beds: Number(formData.beds),
           baths: Number(formData.baths),
           area: Number(formData.area),
         });
-        // Pegar o ID da propriedade criada
-        await new Promise(resolve => setTimeout(resolve, 500));
-        if (propertiesQuery.data && propertiesQuery.data.length > 0) {
-          propertyId = propertiesQuery.data[0].id;
+        // Usar o ID retornado pelo backend
+        propertyId = (createResult as any)?.id;
+        if (!propertyId) {
+          throw new Error("Falha ao obter ID da propriedade criada");
         }
       }
 

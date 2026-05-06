@@ -130,7 +130,13 @@ export async function createProperty(property: InsertProperty) {
 
   try {
     const result = await db.insert(properties).values(property);
-    return result;
+    // Retornar o ID da propriedade criada
+    // Drizzle retorna um array com o resultado do insert
+    const insertedId = (result as any)?.[0]?.insertId || (result as any)?.insertId;
+    if (!insertedId) {
+      throw new Error("Failed to get inserted property ID");
+    }
+    return { id: Number(insertedId) };
   } catch (error) {
     console.error("[Database] Failed to create property:", error);
     throw error;

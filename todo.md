@@ -93,3 +93,10 @@
 - [x] Implementar modal de maximização de imagem ao clicar
 - [x] Adicionar botão "Remover todas as fotos" na prévia do imóvel (admin)
 - [x] Remover botão "Remover Fotos" da seção de edição
+
+
+## 🚨 BUG CRÍTICO (Produção - Dados Reais)
+- [x] URGENTE: Imagens sendo enviadas para múltiplos anúncios simultaneamente
+  - Causa: Backend não retornava ID da propriedade criada, frontend pegava primeira da lista
+  - Solução: Backend agora retorna ID, frontend usa esse ID para upload
+  - Status: CORRIGIDO

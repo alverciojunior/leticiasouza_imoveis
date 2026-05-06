@@ -124,13 +124,13 @@ export const appRouter = router({
       )
       .mutation(async ({ input }) => {
         try {
-          await createProperty({
+          const result = await createProperty({
             ...input,
             featured: input.featured ? 1 : 0,
             latitude: input.latitude?.toString(),
             longitude: input.longitude?.toString(),
           });
-          return { success: true };
+          return { success: true, id: result.id };
         } catch (error) {
           console.error("Erro ao criar propriedade:", error);
           throw new Error("Erro ao criar propriedade");
