@@ -9,6 +9,7 @@ import ImageUpload from "@/components/ImageUpload";
 import StatsDashboard from "@/components/StatsDashboard";
 import LocationMapPicker from "@/components/LocationMapPicker";
 import AdminUsers from "./AdminUsers";
+import DraggableImageGrid from "@/components/DraggableImageGrid";
 
 interface UploadedImage {
   file: File;
@@ -140,6 +141,22 @@ export default function AdminDashboard() {
     onError: (error) => {
       toast.error("Erro ao remover imagens", {
         description: error.message || "Não foi possível remover as imagens.",
+        duration: 5000,
+      });
+    },
+  });
+
+  const reorderImagesMutation = trpc.properties.reorderImages.useMutation({
+    onSuccess: () => {
+      toast.success("Imagens reordenadas com sucesso!", {
+        description: "A ordem das fotos foi atualizada.",
+        duration: 3000,
+      });
+      propertiesQuery.refetch();
+    },
+    onError: (error) => {
+      toast.error("Erro ao reordenar imagens", {
+        description: error.message || "Nao foi possivel reordenar as imagens.",
         duration: 5000,
       });
     },
@@ -678,35 +695,15 @@ export default function AdminDashboard() {
               {editingId && existingImages.length > 0 && (
                 <div className="space-y-4 pt-6 border-t border-border">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-foreground">Fotos Atuais</h4>
+                    <h4 className="font-semibold text-foreground">Fotos Atuais (Arraste para reordenar)</h4>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {existingImages.map((image, index) => (
-                      <div
-                        key={image.id}
-                        className="relative group rounded-lg overflow-hidden bg-secondary/30"
-                      >
-                        <img
-                          src={image.imageUrl}
-                          alt={`Imagem ${index + 1}`}
-                          className="w-full h-32 object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteImage(image.id)}
-                            className="p-2 bg-red-600 hover:bg-red-700 rounded-lg text-white transition-colors"
-                            title="Remover"
-                          >
-                            <X size={18} />
-                          </button>
-                        </div>
-                        <div className="absolute top-2 left-2 bg-accent text-accent-foreground px-2 py-1 rounded text-xs font-semibold">
-                          {index + 1}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <DraggableImageGrid
+                    images={existingImages}
+                    onReorder={(imageIds) => {
+                      reorderImagesMutation.mutate({ propertyId: editingId, imageIds });
+                    }}
+                    onDeleteImage={handleDeleteImage}
+                  />
                 </div>
               )}
 

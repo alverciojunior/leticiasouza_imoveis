@@ -3,8 +3,9 @@ import { trpc } from "@/lib/trpc";
 
 export interface AdminUser {
   id: number;
-  email: string;
-  name: string;
+  email: string | null;
+  name: string | null;
+  role: "user" | "admin";
 }
 
 export function useAdminAuth() {

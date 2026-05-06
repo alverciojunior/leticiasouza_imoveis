@@ -253,10 +253,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
             {properties.filter(p => p.featured).map((property) => (
-              <a
+              <div
                 key={property.id}
-                href={`/property/${property.id}`}
-                className="group cursor-pointer block"
+                className="group cursor-default block"
               >
                 <div className="relative mb-4">
                   {property.images && property.images.length > 0 ? (
@@ -271,7 +270,7 @@ export default function Home() {
                       <img
                         src={property.image || PLACEHOLDER_IMAGE}
                         alt={property.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   )}
@@ -279,9 +278,12 @@ export default function Home() {
                     {property.price}
                   </div>
                 </div>
-                <h3 className="font-display text-2xl font-bold text-foreground mb-2">
-                  {property.title}
-                </h3>
+                <a
+                  href={`/property/${property.id}`}
+                  className="font-display text-2xl font-bold text-foreground mb-2 hover:text-accent transition-colors inline-block"
+                >
+                  <h3>{property.title}</h3>
+                </a>
                 <p className="text-muted-foreground flex items-center gap-2 mb-4">
                   <MapPin size={16} />
                   {property.location}
@@ -300,7 +302,7 @@ export default function Home() {
                     <span>{property.area} m²</span>
                   </div>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         </div>
@@ -367,22 +369,17 @@ export default function Home() {
                 return b.id - a.id;
               })
               .map((property) => (
-              <a
-                key={property.id}
-                href={property.sold ? '#' : `/property/${property.id}`}
-                onClick={(e) => property.sold && e.preventDefault()}
-                className={`block ${property.sold ? 'opacity-60 pointer-events-none' : ''}`}
-              >
               <Card
+                key={property.id}
                 className={`overflow-hidden transition-shadow duration-300 group ${
-                  property.sold ? 'cursor-not-allowed' : 'hover:shadow-lg cursor-pointer'
+                  property.sold ? 'cursor-not-allowed' : 'cursor-default'
                 }`}
               >
                 <div className="relative overflow-hidden h-48">
                   <img
                     src={property.image || PLACEHOLDER_IMAGE}
                     alt={property.title}
-                    className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                    className={`w-full h-full object-cover ${
                       property.sold ? 'grayscale' : ''
                     }`}
                   />
@@ -398,10 +395,16 @@ export default function Home() {
                   <div className="mb-3">
                     <p className="text-accent font-semibold text-lg">{property.price}</p>
                   </div>
-                  <h3 className="font-display text-xl font-bold text-foreground mb-2">
-                    {property.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm flex items-center gap-2 mb-4">
+                  <a
+                    href={property.sold ? '#' : `/property/${property.id}`}
+                    onClick={(e) => property.sold && e.preventDefault()}
+                    className={`font-display text-xl font-bold inline-block ${
+                      property.sold ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground hover:text-accent transition-colors'
+                    }`}
+                  >
+                    <h3>{property.title}</h3>
+                  </a>
+                  <p className="text-muted-foreground text-sm flex items-center gap-2 mb-4 mt-2">
                     <MapPin size={14} />
                     {property.location}
                   </p>
@@ -428,7 +431,6 @@ export default function Home() {
                   ) : null}
                 </div>
               </Card>
-              </a>
             ))}
           </div>
         </div>

@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
-import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, deleteAllPropertyImages, markPropertyAsSold, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews, getAdminByEmail, createAdminUser, updateAdminPassword, getAllAdminUsers } from "./db";
+import { createAppointment, getAppointments, createProperty, updateProperty, getProperties, getPropertyById, deleteProperty, addPropertyImage, getPropertyImages, deletePropertyImage, deleteAllPropertyImages, markPropertyAsSold, recordPropertyView, getPropertyStats, getAllPropertiesStats, getAppointmentStats, getTotalViews, getAdminByEmail, createAdminUser, updateAdminPassword, getAllAdminUsers, reorderPropertyImages } from "./db";
 import { hashPassword, verifyPassword } from "./_core/password";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
@@ -288,6 +288,18 @@ export const appRouter = router({
         } catch (error) {
           console.error("Erro ao deletar todas as imagens:", error);
           throw new Error("Erro ao deletar todas as imagens");
+        }
+      }),
+    reorderImages: protectedProcedure
+      .input(z.object({ propertyId: z.number(), imageIds: z.array(z.number()) }))
+      .mutation(async ({ input }) => {
+        try {
+          await reorderPropertyImages(input.propertyId, input.imageIds);
+          console.log(`[reorderImages] Imagens reordenadas para propriedade ${input.propertyId}`);
+          return { success: true };
+        } catch (error) {
+          console.error("Erro ao reordenar imagens:", error);
+          throw new Error("Erro ao reordenar imagens");
         }
       }),
     markAsSold: adminProcedure

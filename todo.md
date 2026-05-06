@@ -100,3 +100,18 @@
   - Causa: Backend não retornava ID da propriedade criada, frontend pegava primeira da lista
   - Solução: Backend agora retorna ID, frontend usa esse ID para upload
   - Status: CORRIGIDO
+
+## Melhorias Solicitadas (Sessão Atual)
+- [x] Implementar drag-and-drop para reorganizar imagens no AdminDashboard sem fechar edição
+  - Criado componente DraggableImageGrid com suporte a drag-and-drop
+  - Integrado em AdminDashboard com mutation para reordenar
+  - Botões de navegação não disparam reordenação
+- [x] Corrigir UX da galeria: apenas nome/centro abre anúncio, não a imagem inteira
+  - Refatorado cards featured para remover link envolvendo toda a imagem
+  - Refatorado cards regulares para remover link envolvendo toda a imagem
+  - Apenas título agora abre o anúncio
+  - Adicionado stopPropagation nos controles de ImageCarousel
+- [x] Limpar anúncios de teste da base de desenvolvimento
+  - Criado script cleanup-test-data.mjs para remover propriedades de teste
+  - Removidos dados hardcoded de PropertyDetail.tsx
+  - Agora carrega dados apenas do backend via tRPC

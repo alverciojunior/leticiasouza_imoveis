@@ -114,7 +114,10 @@ export default function ImageCarousel({
         {images.length > 1 && (
           <>
             <button
-              onClick={goToPrevious}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPrevious();
+              }}
               className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-black rounded-full p-2 transition-all opacity-0 group-hover:opacity-100 duration-300"
               aria-label="Imagem anterior"
             >
@@ -122,7 +125,10 @@ export default function ImageCarousel({
             </button>
 
             <button
-              onClick={goToNext}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToNext();
+              }}
               className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-black rounded-full p-2 transition-all opacity-0 group-hover:opacity-100 duration-300"
               aria-label="Próxima imagem"
             >
@@ -137,7 +143,10 @@ export default function ImageCarousel({
             {images.map((_, index) => (
               <button
                 key={index}
-                onClick={() => goToSlide(index)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToSlide(index);
+                }}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
                   index === currentIndex
                     ? "bg-white w-8"

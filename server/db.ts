@@ -268,6 +268,25 @@ export async function deleteAllPropertyImages(propertyId: number) {
 }
 
 
+export async function reorderPropertyImages(propertyId: number, imageIds: number[]) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    // Update order for each image
+    for (let i = 0; i < imageIds.length; i++) {
+      await db.update(propertyImages).set({ order: i }).where(eq(propertyImages.id, imageIds[i]));
+    }
+    console.log(`[Database] Reordered ${imageIds.length} images for property ${propertyId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("[Database] Failed to reorder property images:", error);
+    throw error;
+  }
+}
+
 export async function markPropertyAsSold(propertyId: number, sold: boolean) {
   const db = await getDb();
   if (!db) {
