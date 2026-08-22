@@ -157,4 +157,9 @@
 
 
 ## Gestão de Histórico Git (Sessão Atual)
-- [ ] Reescrever todos os commits com autor alverciojunior <alvercio.junior@gmail.com> e sincronizar o histórico remoto
+- [x] Reescrever todos os commits com autor alverciojunior <alvercio.junior@gmail.com> e sincronizar o histórico remoto
+  - Histórico local reescrito: 71 commits
+  - Autor e committer definidos como alverciojunior <alvercio.junior@gmail.com>
+  - Branch main do GitHub atualizada com force push autorizado
+  - Backup local criado na tag pre-author-rewrite-20260822-202247
+  - Observação: o remoto interno origin não respondeu por credenciais indisponíveis após o reset do sandbox; o GitHub foi atualizado com sucesso.
