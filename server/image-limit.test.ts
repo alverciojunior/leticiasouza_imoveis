@@ -1,26 +1,51 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { getDb } from "./db";
 import { properties, propertyImages } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 describe("Image limit validation", () => {
   let db: any;
+  const createdPropertyIds: number[] = [];
 
   beforeAll(async () => {
     db = await getDb();
   });
 
+  async function createTestProperty(title: string, location: string, price: string) {
+    const result = await db.insert(properties).values({
+      title,
+      location,
+      price,
+      type: "Casas",
+      beds: 3,
+      baths: 2,
+      area: 150,
+      description: "Test description",
+      latitude: "-20.5105",
+      longitude: "-48.7789",
+      featured: 0,
+      sold: 0,
+      createdAt: new Date(),
+    });
+
+    const propertyId = Number(result[0].insertId);
+    createdPropertyIds.push(propertyId);
+    return propertyId;
+  }
+
+  async function removeTestProperty(propertyId: number) {
+    await db.delete(propertyImages).where(eq(propertyImages.propertyId, propertyId));
+    await db.delete(properties).where(eq(properties.id, propertyId));
+  }
+
   afterAll(async () => {
-    if (db) {
+    if (!db) return;
+
+    for (const propertyId of createdPropertyIds) {
       try {
-        await db.delete(propertyImages).where(eq(propertyImages.propertyId, 999));
-        await db.delete(propertyImages).where(eq(propertyImages.propertyId, 998));
-        await db.delete(propertyImages).where(eq(propertyImages.propertyId, 997));
-        await db.delete(properties).where(eq(properties.id, 999));
-        await db.delete(properties).where(eq(properties.id, 998));
-        await db.delete(properties).where(eq(properties.id, 997));
-      } catch (e) {
-        console.log("Cleanup error (expected if records don't exist):", e);
+        await removeTestProperty(propertyId);
+      } catch (error) {
+        console.log(`Cleanup error for property ${propertyId}:`, error);
       }
     }
   });
@@ -28,34 +53,17 @@ describe("Image limit validation", () => {
   it("should allow adding images up to 20", async () => {
     if (!db) throw new Error("Database not available");
 
-    // Limpar dados anteriores
-    await db.delete(propertyImages).where(eq(propertyImages.propertyId, 999));
-    await db.delete(properties).where(eq(properties.id, 999));
+    const propertyId = await createTestProperty(
+      "Test Property - 20 Images",
+      "Test Location",
+      "100000"
+    );
 
-    // Criar propriedade de teste
-    const testProperty = {
-      id: 999,
-      title: "Test Property",
-      location: "Test Location",
-      price: "100000",
-      beds: 3,
-      baths: 2,
-      area: 150,
-      description: "Test description",
-      latitude: -20.5105,
-      longitude: -48.7789,
-      isSold: false,
-      createdAt: new Date(),
-    };
-
-    await db.insert(properties).values(testProperty);
-
-    // Adicionar 20 imagens
     for (let i = 0; i < 20; i++) {
       await db.insert(propertyImages).values({
-        propertyId: 999,
+        propertyId,
         imageUrl: `https://example.com/image-${i}.jpg`,
-        imageKey: `image-${i}`,
+        imageKey: `image-${propertyId}-${i}`,
         order: i,
       });
     }
@@ -63,7 +71,7 @@ describe("Image limit validation", () => {
     const images = await db
       .select()
       .from(propertyImages)
-      .where(eq(propertyImages.propertyId, 999));
+      .where(eq(propertyImages.propertyId, propertyId));
 
     expect(images).toHaveLength(20);
   });
@@ -71,34 +79,17 @@ describe("Image limit validation", () => {
   it("should validate that limit is enforced at 20 images", async () => {
     if (!db) throw new Error("Database not available");
 
-    // Limpar dados anteriores
-    await db.delete(propertyImages).where(eq(propertyImages.propertyId, 998));
-    await db.delete(properties).where(eq(properties.id, 998));
+    const propertyId = await createTestProperty(
+      "Test Property - Limit",
+      "Test Location",
+      "100000"
+    );
 
-    // Criar propriedade de teste
-    const testProperty = {
-      id: 998,
-      title: "Test Property",
-      location: "Test Location",
-      price: "100000",
-      beds: 3,
-      baths: 2,
-      area: 150,
-      description: "Test description",
-      latitude: -20.5105,
-      longitude: -48.7789,
-      isSold: false,
-      createdAt: new Date(),
-    };
-
-    await db.insert(properties).values(testProperty);
-
-    // Adicionar 20 imagens
     for (let i = 0; i < 20; i++) {
       await db.insert(propertyImages).values({
-        propertyId: 998,
-        imageUrl: `https://example.com/image-${i}.jpg`,
-        imageKey: `image-${i}`,
+        propertyId,
+        imageUrl: `https://example.com/limit-image-${i}.jpg`,
+        imageKey: `limit-image-${propertyId}-${i}`,
         order: i,
       });
     }
@@ -106,9 +97,8 @@ describe("Image limit validation", () => {
     const images = await db
       .select()
       .from(propertyImages)
-      .where(eq(propertyImages.propertyId, 998));
+      .where(eq(propertyImages.propertyId, propertyId));
 
-    // Validar que não pode ultrapassar 20
     expect(images.length).toBeLessThanOrEqual(20);
     expect(images.length).toBe(20);
   });
@@ -116,65 +106,29 @@ describe("Image limit validation", () => {
   it("should allow different properties to have their own 20 images", async () => {
     if (!db) throw new Error("Database not available");
 
-    // Limpar dados anteriores
-    await db.delete(propertyImages).where(eq(propertyImages.propertyId, 999));
-    await db.delete(propertyImages).where(eq(propertyImages.propertyId, 998));
-    await db.delete(propertyImages).where(eq(propertyImages.propertyId, 997));
-    await db.delete(properties).where(eq(properties.id, 999));
-    await db.delete(properties).where(eq(properties.id, 998));
-    await db.delete(properties).where(eq(properties.id, 997));
+    const propertyId1 = await createTestProperty(
+      "Test Property 1",
+      "Test Location 1",
+      "100000"
+    );
+    const propertyId2 = await createTestProperty(
+      "Test Property 2",
+      "Test Location 2",
+      "200000"
+    );
 
-    // Criar primeira propriedade
-    const testProperty1 = {
-      id: 999,
-      title: "Test Property 1",
-      location: "Test Location 1",
-      price: "100000",
-      beds: 3,
-      baths: 2,
-      area: 150,
-      description: "Test description",
-      latitude: -20.5105,
-      longitude: -48.7789,
-      isSold: false,
-      createdAt: new Date(),
-    };
-
-    // Criar segunda propriedade
-    const testProperty2 = {
-      id: 998,
-      title: "Test Property 2",
-      location: "Test Location 2",
-      price: "200000",
-      beds: 4,
-      baths: 3,
-      area: 200,
-      description: "Test description 2",
-      latitude: -20.5105,
-      longitude: -48.7789,
-      isSold: false,
-      createdAt: new Date(),
-    };
-
-    await db.insert(properties).values(testProperty1);
-    await db.insert(properties).values(testProperty2);
-
-    // Adicionar 20 imagens para primeira propriedade
     for (let i = 0; i < 20; i++) {
       await db.insert(propertyImages).values({
-        propertyId: 999,
-        imageUrl: `https://example.com/prop1-image-${i}.jpg`,
-        imageKey: `prop1-image-${i}`,
+        propertyId: propertyId1,
+        imageUrl: `https://example.com/property-1-image-${i}.jpg`,
+        imageKey: `property-1-${propertyId1}-${i}`,
         order: i,
       });
-    }
 
-    // Adicionar 20 imagens para segunda propriedade
-    for (let i = 0; i < 20; i++) {
       await db.insert(propertyImages).values({
-        propertyId: 998,
-        imageUrl: `https://example.com/prop2-image-${i}.jpg`,
-        imageKey: `prop2-image-${i}`,
+        propertyId: propertyId2,
+        imageUrl: `https://example.com/property-2-image-${i}.jpg`,
+        imageKey: `property-2-${propertyId2}-${i}`,
         order: i,
       });
     }
@@ -182,12 +136,11 @@ describe("Image limit validation", () => {
     const images1 = await db
       .select()
       .from(propertyImages)
-      .where(eq(propertyImages.propertyId, 999));
-
+      .where(eq(propertyImages.propertyId, propertyId1));
     const images2 = await db
       .select()
       .from(propertyImages)
-      .where(eq(propertyImages.propertyId, 998));
+      .where(eq(propertyImages.propertyId, propertyId2));
 
     expect(images1).toHaveLength(20);
     expect(images2).toHaveLength(20);
